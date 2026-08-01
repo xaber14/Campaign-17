@@ -1,0 +1,1174 @@
+/* ==========================================================================
+   Kuis Spesial Kemerdekaan 2026 — Dengar Stori | Kompas.com
+   Landing page styles. Token names mirror the Figma variables.
+   Figma: Corat-Coret-Aja › Frame 16 (node 335:468)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Tokens
+   -------------------------------------------------------------------------- */
+:root {
+  /* Surfaces */
+  --bg: #1C1A16;
+  --bg-hero: linear-gradient(7.3deg, #362E28 44.19%, #8E867E 184.31%);
+  --surface-1: rgba(255, 255, 255, .04);
+  --surface-2: rgba(255, 255, 255, .07);
+  --line: rgba(255, 255, 255, .09);
+  --line-strong: rgba(255, 255, 255, .16);
+
+  /* Brand / accent */
+  --gold: #A57204;
+  --gold-hover: #C2870A;
+  --gold-deep: #7A5303;
+  --cream: #FFE6B0;
+  --flag-red: #E11D2E;
+  --yale-blue-50: #0F79C6;
+
+  /* Neutral (Figma: Neutral/*) */
+  --white: #FFFFFF;
+  --neutral-30: #DBDCDE;
+  --neutral-pale: #B8B8B8;
+  --neutral-dim: #A0A0A0;
+  --neutral-base: #888888;
+  --neutral-muted: #8D8D8D;
+
+  /* Raised dark surface (selected step card, switch track) — Figma 343:4445 */
+  --surface-raised: #282622;
+  --switch-track: var(--surface-raised);
+  --switch-thumb: #605E5B;
+
+  /* Pengumuman Pemenang — Figma 335:613 / 335:750 */
+  --winners-bg: #262523;
+  --winner-card: #3A3836;
+
+  /* Light surfaces (Figma: Background / Platinum / Charcoal) */
+  --bg-light: #FBFBFB;
+  --platinum-light: #EFEFEF;
+  --platinum: #E7E7E7;
+  --charcoal: #2B2B2B;
+  --charcoal-light: #515151;
+  --charcoal-lightest: #808080;
+  --charcoal-white: #999999;
+
+  /* Type scale — all line-height 1.3, letter-spacing -2% */
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --h1: 48px;
+  --h2: 36px;
+  --h4: 28px;
+  --sh1: 22px;
+  --sh2: 20px;
+  --b1: 18px;
+  --b2: 16px;
+  --b3: 14px;
+  --lh: 1.3;
+  --lh-prose: 1.7;
+  --ls: -0.02em;
+
+  /* Layout — content is 1070px wide (Figma), gutters sit outside it,
+     so at 1440px the side margins land on 185px exactly. */
+  --content: 1070px;
+  --gutter: 24px;
+  --container: calc(var(--content) + (var(--gutter) * 2));
+  --radius-sm: 10px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+}
+
+/* --------------------------------------------------------------------------
+   2. Reset & base
+   -------------------------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--white);
+  font-family: var(--font);
+  font-size: var(--b2);
+  line-height: var(--lh);
+  letter-spacing: var(--ls);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Must win over component `display` rules (e.g. .steps { display: flex }),
+   otherwise the hidden tab panel keeps occupying its grid cell. */
+[hidden] { display: none !important; }
+
+h1, h2, h3, p, dl, dd, dt, figure { margin: 0; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; letter-spacing: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+
+svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+:focus-visible {
+  outline: 2px solid var(--cream);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.u-accent { color: var(--cream); }
+
+.u-sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+.skip-link {
+  position: absolute; left: 50%; top: 0;
+  transform: translate(-50%, -120%);
+  z-index: 100;
+  padding: 10px 18px;
+  background: var(--cream); color: #1C1A16;
+  font-size: var(--b3); font-weight: 600;
+  border-radius: 0 0 var(--radius) var(--radius);
+  transition: transform .18s ease;
+}
+.skip-link:focus { transform: translate(-50%, 0); }
+
+/* Optional-image pattern: fallback shows until the real image loads. */
+[data-optional-img] { position: relative; }
+[data-optional-img] .opt-img { display: none; }
+[data-optional-img].is-loaded .opt-img { display: block; }
+[data-optional-img].is-loaded .opt-fallback { display: none; }
+
+/* --------------------------------------------------------------------------
+   3. Top bar — Figma 335:2277 (h 50, bg-black, px-170 @1440)
+   -------------------------------------------------------------------------- */
+.topbar {
+  position: relative;
+  z-index: 5;
+  height: 50px;
+  background: #000;
+}
+.topbar__inner {
+  height: 100%;
+  /* max-width(content 1100) + centering + gutter padding reproduces the
+     170px fixed side offset Figma specifies at 1440px, but stays responsive
+     at other widths instead of a hardcoded 170px that would break on mobile. */
+  max-width: calc(1100px + (var(--gutter) * 2));
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+/* Figma 335:2278 — no rounding/backdrop on the logogram itself, it's a
+   self-contained multi-colour mark (light badge shape + black "K+"). */
+.topbar__account {
+  display: grid; place-items: center;
+  width: 34px; height: 34px;
+  color: var(--white);
+  border-radius: 50%;
+  transition: background-color .18s ease;
+}
+.topbar__account:hover { background: rgba(255, 255, 255, .08); }
+
+/* --------------------------------------------------------------------------
+   4. Buttons
+   -------------------------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;                      /* button/spacing/xlarge/gap */
+  padding: 12px 16px;            /* button/spacing/xlarge */
+  border-radius: var(--radius);  /* button/spacing/xlarge/border-radius */
+  font-size: var(--b2);
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: var(--ls);
+  white-space: nowrap;
+  transition: background-color .18s ease, border-color .18s ease, transform .18s ease, box-shadow .18s ease;
+}
+.btn:active { transform: translateY(1px); }
+.btn__icon { width: 16px; height: 16px; flex: none; }
+
+.btn--primary {
+  background: var(--gold);
+  color: var(--white);
+  box-shadow: 0 8px 24px -10px rgba(165, 114, 4, .8);
+}
+.btn--primary:hover { background: var(--gold-hover); }
+
+.btn--outline {
+  border: 1px solid var(--neutral-dim);
+  color: var(--white);
+}
+.btn--outline:hover { border-color: var(--white); background: rgba(255, 255, 255, .07); }
+
+/* --------------------------------------------------------------------------
+   5. Hero — Figma 335:68 (h 740)
+   -------------------------------------------------------------------------- */
+.hero {
+  position: relative;
+  isolation: isolate;
+  min-height: 740px;
+  padding: 121px var(--gutter) 63px;
+  background: var(--bg-hero);
+  overflow: hidden;
+}
+
+/* Photo layer — Figma 343:1313.
+   `assets/img/hero-bg.jpg` is a FLATTENED 1440×740 export of the whole Hero
+   frame: the photo, its 70% opacity, the dark gradient veil and the warm glow
+   ellipse are all already baked into the pixels (verified — the bottom rows
+   measure rgb(27,26,22), i.e. the #1C1A16 veil colour).
+   So it must be drawn as-is: full opacity, no veil, no glow on top. Re-applying
+   any of those would darken the hero twice and no longer match Figma. */
+.hero__photo {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  pointer-events: none;
+}
+.hero__photo-img {
+  width: 100%;
+  height: 100%;
+  /* Native size equals the Figma frame (1440×740), so at design width this maps
+     1:1. Anchored to the bottom so the baked-in dark fade always meets the
+     section below and the seam stays invisible on wider viewports. */
+  object-fit: cover;
+  object-position: center bottom;
+}
+
+/* Blurred blend shape — Figma "Ellipse 3" (343:1315).
+   Exported SVG is authoritative: ellipse fill #1C1A16, opacity .98,
+   feGaussianBlur stdDeviation 23.95 (CSS blur() takes the std deviation
+   directly, so blur(23.95px) is an exact match).
+   Node box is 1762×409 at y=649 inside the 740-tall Hero, i.e. its bottom edge
+   sits 318px below the Hero. Anchored via `bottom` (not `top`) so the shape
+   stays welded to the Hero's bottom edge even when the Hero grows taller.
+   Because its colour equals Section 2's solid background, the seam between the
+   two sections disappears. */
+.hero__blend {
+  position: absolute;
+  left: 50%;
+  bottom: -318px;
+  width: 1762px;
+  height: 409px;
+  transform: translateX(-50%);
+  z-index: -1;
+  background: #1C1A16;
+  border-radius: 50%;
+  filter: blur(23.95px);
+  opacity: .98;
+  pointer-events: none;
+}
+
+.hero__content {
+  position: relative;
+  max-width: 865px;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Logo Dengar Stori — 166×148 */
+.hero__logo {
+  width: 166px;
+  height: 148px;
+  margin-bottom: 33px;
+  display: grid;
+  place-items: center;
+}
+.hero__logo .opt-img { width: 166px; height: 148px; object-fit: contain; }
+
+.hero__wordmark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  text-align: center;
+  color: var(--white);
+  text-shadow: 0 2px 18px rgba(0, 0, 0, .55);
+}
+.hero__wordmark-top {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+.hero__wordmark-bottom {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: .16em;
+  text-indent: .16em;
+  color: var(--cream);
+}
+.hero__wordmark::after {
+  content: '';
+  width: 54px;
+  height: 3px;
+  margin-top: 10px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--flag-red) 0 50%, var(--white) 50% 100%);
+}
+
+/* Copy block: gap 40 between copy and actions, 16 between title and lead */
+.hero__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  width: 100%;
+}
+.hero__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: center;
+}
+.hero__title {
+  font-size: var(--h1);
+  font-weight: 700;
+  line-height: var(--lh);
+  letter-spacing: var(--ls);
+  text-wrap: balance;
+}
+.hero__lead {
+  font-size: var(--b1);
+  font-weight: 400;
+  line-height: var(--lh);
+  color: var(--neutral-pale);
+}
+
+.hero__actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.hero__or {
+  font-size: var(--b2);
+  color: var(--neutral-muted);
+}
+
+/* Facts row — gap 58 from block above, 24 between items */
+.hero__facts {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: 58px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.fact { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.fact__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--b3);
+  color: var(--neutral-pale);
+}
+.fact__icon { width: 16px; height: 16px; flex: none; }
+.fact__value { font-size: var(--b2); font-weight: 700; color: var(--white); }
+.fact__sep {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--neutral-base);
+  flex: none;
+}
+
+/* --------------------------------------------------------------------------
+   6. Slabs (section shells)
+   -------------------------------------------------------------------------- */
+.slab { position: relative; isolation: isolate; }
+
+/* Hadiah + Cara Main — Figma "Section 2" (343:4434).
+   Base is solid #1C1A16 (no gradient tint); the Hero's blurred blend shape
+   carries the transition into this section. */
+.slab--play {
+  padding-block: 40px 98px;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+/* Background artwork — Figma 343:4435.
+   The node is 1440×1440 at y=318, but Section 2 (1225 tall) clips it, so only
+   1440×907 is ever visible — which is exactly the exported asset's size
+   (1225 − 318 = 907). It therefore sits flush with the section's bottom edge.
+   The asset's top rows measure rgb(27,26,22) = #1C1A16, i.e. the fade into the
+   section colour is already baked in, so no extra veil is needed here. */
+.slab--play .slab__bg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 907px;
+  z-index: -1;
+  background-image: url('../img/section2-bg.jpg');
+  background-size: cover;
+  background-position: center bottom;
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   7. Kartu hadiah — Figma "Frame 6" (356:1806), 1070×330, padding 40, gap 40
+   -------------------------------------------------------------------------- */
+.prize {
+  position: relative;
+  z-index: 0; /* own stacking context, so .prize__glow's negative z-index stays scoped to this card */
+  display: grid;
+  grid-template-columns: 333px 1fr;
+  gap: 40px;
+  align-items: center;
+  padding: 40px;
+  background: linear-gradient(to bottom, #25221D 31.034%, #2D2519 290.72%);
+  border-radius: var(--radius);
+  overflow: hidden; /* clips .prize__glow, which intentionally bleeds past the left edge */
+}
+
+/* Decorative glow — Figma "Ellipse 174" (362:1836): solid ellipse #312B21,
+   345×465, bleeding off the card's left edge, vertically centred.
+   Figma's SVG export carried no blur filter (unlike other blurred shapes on
+   this page, e.g. the Hero's blend ellipse, whose export DID include one) —
+   confirmed by fetching the raw asset directly. The rendered screenshot is
+   visibly soft-edged though, so this is almost certainly a Figma layer-blur
+   effect that its export dropped. blur(48px) here is a calibrated match
+   against that screenshot, not a value read from Figma — flag if a more
+   precise figure becomes available. */
+.prize__glow {
+  position: absolute;
+  z-index: -1;
+  left: -132px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 345px;
+  height: 465px;
+  border-radius: 50%;
+  background: #312B21;
+  filter: blur(48px);
+  pointer-events: none;
+}
+
+/* Figma 362:1834 — 333×222, object-cover, sharp corners (no radius).
+   No background of its own: the asset is a transparent PNG cutout, meant to
+   float directly on the card's gradient (and in front of .prize__glow),
+   not sit inside a filled box. */
+.prize__media {
+  width: 333px;
+  height: 222px;
+}
+.prize__media .opt-img { width: 100%; height: 100%; object-fit: cover; }
+.prize__placeholder {
+  display: grid;
+  place-items: center;
+  width: 100%; height: 100%;
+  color: rgba(255, 255, 255, .22);
+  background:
+    repeating-linear-gradient(135deg,
+      rgba(255, 255, 255, .03) 0 10px,
+      rgba(255, 255, 255, 0) 10px 20px);
+}
+/* Figma 356:1808 — gap 24 between title / list / CTA line */
+.prize__copy { display: flex; flex-direction: column; gap: 24px; }
+/* Figma 356:1809 — H4 28px bold, white with the price+winner clause in cream */
+.prize__title {
+  font-size: var(--h4);
+  font-weight: 700;
+  line-height: var(--lh);
+  color: var(--white);
+}
+/* Figma 356:1818 — bullet list, gap 12; bullet 12px circle #D9D9D9, gap 12 */
+.prize__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.prize__list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: var(--b1);
+  line-height: var(--lh);
+  color: var(--neutral-pale);
+}
+.prize__list li::before {
+  content: '';
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #D9D9D9;
+}
+/* Figma 362:1837 — Sub Heading/SH2 20px bold white */
+.prize__cta {
+  font-size: var(--sh2);
+  font-weight: 700;
+  line-height: var(--lh);
+  color: var(--white);
+}
+
+/* --------------------------------------------------------------------------
+   8. Cara main — Figma 335:525
+   -------------------------------------------------------------------------- */
+.play { margin-top: 108px; }
+
+.play__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gutter);
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+/* Figma 343:4444 — H4 28px bold, "Bagaimana" in cream, rest white */
+.section-title {
+  font-size: var(--h4);
+  font-weight: 700;
+  line-height: var(--lh);
+  color: var(--white);
+}
+
+/* Switch Mode — Figma 343:4445 (328 wide, padding 4, radius 12, gap 8;
+   pill radius 10, padding 10; active #605E5B/white, idle #888888) */
+.switch {
+  display: flex;
+  gap: 8px;
+  width: 328px;
+  max-width: 100%;
+  padding: 4px;
+  background: var(--switch-track);
+  border-radius: var(--radius);
+}
+.switch__btn {
+  flex: 1;
+  min-width: 0;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  font-size: var(--b2);
+  font-weight: 600;
+  line-height: var(--lh);
+  color: var(--neutral-base);
+  text-align: center;
+  transition: background-color .18s ease, color .18s ease;
+}
+.switch__btn:hover { color: var(--white); }
+.switch__btn.is-active {
+  background: var(--switch-thumb);
+  color: var(--white);
+}
+
+/* Body: steps column 420, preview 588, gap 62 */
+.play__body {
+  display: grid;
+  grid-template-columns: 420px minmax(0, 588px);
+  justify-content: space-between;
+  gap: 62px;
+  align-items: start;
+}
+
+/* Steps — Figma 343:4451. Card 420 wide, padding 16, badge 35×36 at (16,16),
+   copy block at x=63 (gap 12). Idle steps have NO container fill; only the
+   selected step gets one. Each step is a button that swaps the visual on the
+   right. */
+.steps { display: flex; flex-direction: column; gap: 24px; }
+.step {
+  display: grid;
+  grid-template-columns: 35px 1fr;
+  gap: 12px;
+  width: 100%;
+  padding: 16px;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  /* Digabung dengan transisi reveal (§14) di sini, bukan dibiarkan terpisah:
+     `.step` juga bertanda [data-reveal], dan shorthand `transition` di rule
+     manapun yang menang cascade akan menimpa TOTAL daftar propertinya, bukan
+     menggabungkannya. Menuliskannya sekali di sini membuat hasilnya sama
+     persis terlepas dari urutan sumber. */
+  transition:
+    background-color .2s ease,
+    opacity .7s cubic-bezier(.16, .9, .24, 1) calc(var(--reveal-step, 70ms) * var(--rd, 0)),
+    transform .7s cubic-bezier(.16, .9, .24, 1) calc(var(--reveal-step, 70ms) * var(--rd, 0));
+}
+.step:hover:not(.is-active) { background: rgba(255, 255, 255, .035); }
+.step.is-active { background: var(--surface-raised); }
+
+/* Badge: gold rounded square, white H4 28px bold digit */
+.step__num {
+  display: grid;
+  place-items: center;
+  width: 35px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--gold);
+  color: var(--white);
+  font-size: var(--h4);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.step__copy { display: flex; flex-direction: column; gap: 12px; }
+/* Title: B1 18px Semi Bold — white when idle, cream when selected */
+.step__title {
+  font-size: var(--b1);
+  font-weight: 600;
+  line-height: var(--lh);
+  color: var(--white);
+  transition: color .2s ease;
+}
+.step.is-active .step__title { color: var(--cream); }
+/* Description: B2 16px Regular */
+.step__text {
+  font-size: var(--b2);
+  line-height: var(--lh);
+  color: var(--neutral-pale);
+}
+
+/* --------------------------------------------------------------------------
+   9. Showcase — visual kanan yang berganti per langkah (Figma 343:4476, 588×553)
+   -------------------------------------------------------------------------- */
+.showcase { min-height: 553px; }
+.showcase__item { margin: 0; }
+.showcase__item .opt-img {
+  width: 100%;
+  aspect-ratio: 588 / 553;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+}
+
+/* Placeholder sampai aset asli tersedia */
+.showcase__ph {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  aspect-ratio: 588 / 553;
+  padding: 24px;
+  text-align: center;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-lg);
+  background:
+    repeating-linear-gradient(135deg,
+      rgba(255, 255, 255, .03) 0 10px,
+      rgba(255, 255, 255, 0) 10px 20px);
+}
+.showcase__ph-icon { width: 44px; height: 44px; color: rgba(255, 255, 255, .28); }
+.showcase__ph-title { font-size: var(--b1); font-weight: 600; color: var(--neutral-pale); }
+.showcase__ph-note { font-size: var(--b3); color: var(--neutral-base); }
+.showcase__ph-note code {
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, .07);
+}
+
+/* --------------------------------------------------------------------------
+   9b. Preview kuis di artikel (visual langkah 4)
+   -------------------------------------------------------------------------- */
+.preview { display: flex; flex-direction: column; gap: 12px; }
+.preview__frame {
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  background: #131210;
+  overflow: hidden;
+  box-shadow: 0 30px 70px -40px rgba(0, 0, 0, .9);
+}
+.preview__chrome {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, .05);
+  border-bottom: 1px solid var(--line);
+}
+.preview__dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, .22); }
+.preview__url {
+  margin-left: 10px;
+  padding: 3px 10px;
+  font-size: 11px;
+  color: var(--neutral-base);
+  background: rgba(255, 255, 255, .05);
+  border-radius: 999px;
+}
+
+.preview__page { padding: 20px; }
+.preview__kicker {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  color: var(--gold-hover);
+  margin-bottom: 8px;
+}
+.preview__headline {
+  font-size: var(--b1);
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--white);
+  margin-bottom: 14px;
+}
+.preview__lines { display: flex; flex-direction: column; gap: 8px; }
+.preview__lines span {
+  height: 7px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, .09);
+}
+.preview__lines span.is-short { width: 58%; }
+.preview__caption {
+  font-size: var(--b3);
+  color: var(--neutral-base);
+  text-align: center;
+}
+
+/* Sisipan kuis */
+.quiz {
+  margin: 16px 0;
+  padding: 18px;
+  background: linear-gradient(180deg, rgba(165, 114, 4, .16) 0%, rgba(165, 114, 4, .05) 100%);
+  border: 1px solid rgba(255, 230, 176, .22);
+  border-radius: var(--radius);
+}
+.quiz__eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--cream);
+  margin-bottom: 8px;
+}
+.quiz__question {
+  font-size: var(--b2);
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--white);
+  margin-bottom: 14px;
+}
+.quiz__options { display: grid; gap: 8px; }
+.quiz__option {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: var(--b3);
+  color: var(--neutral-30);
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  transition: background-color .16s ease, border-color .16s ease, color .16s ease;
+}
+.quiz__option:hover {
+  background: rgba(255, 230, 176, .12);
+  border-color: rgba(255, 230, 176, .45);
+  color: var(--white);
+}
+.quiz__option.is-picked {
+  background: rgba(255, 230, 176, .2);
+  border-color: var(--cream);
+  color: var(--white);
+}
+
+.quiz__done { text-align: center; padding-block: 6px; }
+.quiz__badge {
+  display: grid;
+  place-items: center;
+  width: 44px; height: 44px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  color: #1C1A16;
+  background: var(--cream);
+}
+.quiz__done-title {
+  font-size: var(--b2);
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 6px;
+}
+.quiz__done-text {
+  font-size: var(--b3);
+  line-height: 1.5;
+  color: var(--neutral-pale);
+}
+.quiz__reset {
+  margin-top: 12px;
+  font-size: var(--b3);
+  font-weight: 600;
+  color: var(--cream);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* --------------------------------------------------------------------------
+   10. Pengumuman pemenang — Figma "Desktop - 3" (335:613), h 534.
+   Dark slab (NOT the light/platinum theme used in an earlier draft — verified
+   against the exported map asset, which is a fully opaque #262523 fill, and
+   against 335:750's text colours, all white/cream/neutral-pale).
+   -------------------------------------------------------------------------- */
+.slab--winners {
+  padding-block: 80px 135px;
+  background: var(--winners-bg);
+  color: var(--white);
+  overflow: hidden;
+}
+.slab--winners[hidden] { display: none; }
+
+/* Background artwork — Figma "Maps" (335:2291): a dot-matrix world map.
+   Exported as ONE flattened PNG via Figma's download_assets (hundreds of
+   individual dot vectors, no single bundled asset existed otherwise). Its
+   base fill (#262523) is fully opaque and already matches this section's
+   background exactly, so it can sit directly on top with no extra veil.
+   In Figma the map is clipped by the section to a visible height of 431px,
+   and 103 (its offset from the section top) + 431 lands exactly on the
+   section's own height (534) — so its bottom edge is flush with the
+   section's bottom edge. Anchored via `bottom: 0` (not `top`) so that stays
+   true even if the section's height changes at other viewport widths. */
+.slab--winners .slab__bg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 431px;
+  z-index: 0;
+  background-image: url('../img/winners-map.png');
+  background-size: cover;
+  background-position: center bottom;
+  pointer-events: none;
+}
+
+/* Figma 335:750 — outer stack gap 40 between header / grid / note */
+.winners {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+.winners__head { display: flex; flex-direction: column; gap: 12px; text-align: center; }
+.winners__eyebrow {
+  font-size: var(--sh1);
+  font-weight: 600;
+  line-height: var(--lh);
+  color: var(--white);
+}
+.winners__title {
+  font-size: var(--h2);
+  font-weight: 700;
+  line-height: var(--lh);
+  color: var(--cream);
+}
+
+.winners__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+}
+.winner {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--winner-card);
+  border-radius: var(--radius);
+}
+.winner__rank {
+  font-size: var(--b1);
+  font-weight: 600;
+  line-height: var(--lh);
+  color: var(--white);
+}
+.winner__id {
+  font-size: var(--b2);
+  line-height: var(--lh);
+  color: var(--neutral-pale);
+  overflow-wrap: anywhere;
+}
+
+.winners__note {
+  max-width: 640px;
+  font-size: var(--b2);
+  line-height: var(--lh);
+  color: var(--neutral-pale);
+  text-align: center;
+}
+
+/* --------------------------------------------------------------------------
+   11. Syarat & ketentuan — Figma 335:752 (padding-block 149)
+   -------------------------------------------------------------------------- */
+.slab--tnc {
+  padding-block: 149px;
+  background: #17150F;
+  border-top: 1px solid rgba(255, 255, 255, .05);
+}
+.tnc {
+  display: grid;
+  grid-template-columns: 504px minmax(0, 527px);
+  align-items: start;
+  gap: 31px;
+}
+.tnc__title {
+  font-size: var(--h2);
+  font-weight: 700;
+  line-height: var(--lh);
+  color: var(--white);
+}
+.tnc__list { display: flex; flex-direction: column; }
+.tnc__item {
+  position: relative;
+  padding: 0 0 16px 22px;
+  font-size: var(--b2);
+  line-height: var(--lh-prose);
+  color: var(--neutral-pale);
+}
+.tnc__item::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 11px;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--gold-hover);
+}
+.tnc__item + .tnc__item {
+  padding-top: 17px;
+  border-top: 1px solid rgba(255, 255, 255, .08);
+}
+.tnc__item + .tnc__item::before { top: 28px; }
+.tnc__item:last-child { padding-bottom: 0; }
+
+/* --------------------------------------------------------------------------
+   12. Footer — Figma 335:2194
+   -------------------------------------------------------------------------- */
+.site-footer {
+  background: #0D0C0A;
+  border-top: 1px solid rgba(255, 255, 255, .06);
+  font-size: var(--b3);
+  color: var(--charcoal-white);
+}
+.site-footer__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 320px) minmax(0, 1fr) minmax(0, 220px);
+  gap: 48px;
+  padding-block: 48px;
+}
+
+.fbrand { display: inline-flex; align-items: baseline; font-weight: 700; font-size: 26px; letter-spacing: -0.03em; }
+.fbrand__kompas { color: var(--white); }
+.fbrand__dot { color: var(--flag-red); }
+
+.fsocial { display: flex; gap: 8px; margin-top: 18px; }
+.fsocial a {
+  display: grid; place-items: center;
+  width: 30px; height: 30px;
+  font-size: 12px; font-weight: 600;
+  color: var(--neutral-pale);
+  background: rgba(255, 255, 255, .07);
+  border-radius: 50%;
+  transition: background-color .18s ease, color .18s ease;
+}
+.fsocial a:hover { background: var(--yale-blue-50); color: var(--white); }
+
+.fcol__label {
+  margin-top: 24px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  color: var(--charcoal-lightest);
+}
+.fstores { display: flex; gap: 8px; flex-wrap: wrap; }
+.fstore {
+  display: flex; flex-direction: column;
+  padding: 7px 12px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 8px;
+  transition: border-color .18s ease, background-color .18s ease;
+}
+.fstore:hover { border-color: rgba(255, 255, 255, .4); background: rgba(255, 255, 255, .05); }
+.fstore__sub { font-size: 8px; letter-spacing: .06em; color: var(--charcoal-lightest); text-transform: uppercase; }
+.fstore__main { font-size: 13px; font-weight: 600; color: var(--white); }
+
+.fverify { display: flex; gap: 8px; flex-wrap: wrap; }
+.fverify__chip {
+  padding: 5px 10px;
+  font-size: 11px;
+  color: var(--neutral-pale);
+  background: rgba(255, 255, 255, .06);
+  border-radius: 6px;
+}
+
+.fnews__label { margin-top: 24px; margin-bottom: 10px; font-size: 12px; color: var(--charcoal-lightest); }
+.fnews { display: flex; gap: 8px; flex-wrap: wrap; }
+.fnews__input {
+  flex: 1 1 150px;
+  min-width: 0;
+  padding: 9px 12px;
+  font: inherit;
+  color: var(--white);
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 8px;
+}
+.fnews__input::placeholder { color: var(--charcoal-lightest); }
+.fnews__btn {
+  padding: 9px 14px;
+  font-size: var(--b3); font-weight: 600;
+  color: var(--white);
+  background: var(--yale-blue-50);
+  border-radius: 8px;
+  transition: filter .18s ease;
+}
+.fnews__btn:hover { filter: brightness(1.12); }
+
+.fcol__title {
+  margin-bottom: 14px;
+  font-size: var(--b2);
+  font-weight: 700;
+  color: var(--white);
+}
+.flinks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.fcol--links li, .fcol--network li { margin-bottom: 9px; }
+.fcol--links a, .fcol--network a { transition: color .16s ease; }
+.fcol--links a:hover, .fcol--network a:hover { color: var(--white); }
+
+.site-footer__legal { border-top: 1px solid rgba(255, 255, 255, .07); }
+.site-footer__legal-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-block: 18px;
+}
+.flegal { display: flex; gap: 18px; flex-wrap: wrap; font-size: 12px; }
+.flegal a:hover { color: var(--white); }
+.fcopy { font-size: 12px; color: var(--charcoal-light); }
+
+/* --------------------------------------------------------------------------
+   13. Responsive
+   -------------------------------------------------------------------------- */
+@media (max-width: 1060px) {
+  .play__body { grid-template-columns: 1fr; gap: 40px; }
+  .showcase { min-height: 0; max-width: 588px; }
+  .tnc { grid-template-columns: 1fr; gap: 32px; }
+  .site-footer__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .fcol--brand { grid-column: 1 / -1; }
+}
+
+@media (max-width: 900px) {
+  :root { --h1: 38px; --h2: 30px; --b1: 17px; }
+  .hero { min-height: 0; padding-block: 72px 64px; }
+  .hero__facts { margin-top: 40px; gap: 16px; }
+  .prize { grid-template-columns: 1fr; gap: 24px; padding: 24px; }
+  .prize__media { width: 100%; height: auto; aspect-ratio: 333 / 222; }
+  .slab--play { padding-bottom: 72px; }
+  .play { margin-top: 72px; }
+  .slab--tnc { padding-block: 80px; }
+  .winners__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .slab--winners { padding-block: 64px 80px; }
+}
+
+@media (max-width: 640px) {
+  :root { --h1: 30px; --h2: 25px; --sh1: 19px; --b1: 16px; --gutter: 18px; }
+  .hero__logo { width: 130px; height: 116px; margin-bottom: 24px; }
+  .hero__wordmark-top, .hero__wordmark-bottom { font-size: 31px; }
+  .hero__body { gap: 28px; }
+  .hero__actions { flex-direction: column; width: 100%; }
+  .hero__actions .btn { width: 100%; }
+  .hero__or { display: none; }
+  .hero__facts { flex-direction: column; }
+  .fact__sep { display: none; }
+  .play__head { flex-direction: column; align-items: flex-start; gap: 18px; }
+  .switch { width: 100%; }
+  .switch__btn { flex: 1; min-width: 0; }
+  .winners__grid { grid-template-columns: 1fr; }
+  .site-footer__grid { grid-template-columns: 1fr; gap: 32px; }
+  .flinks { gap: 16px; }
+  .site-footer__legal-inner { flex-direction: column; align-items: flex-start; }
+}
+
+/* --------------------------------------------------------------------------
+   14. Motion — scroll reveal & signature animation
+
+   Sistemnya sengaja sederhana: satu atribut `data-reveal` menandai elemen apa
+   yang muncul, satu variabel `--reveal-step` mengatur jarak antar elemen yang
+   staggered. Semuanya dibungkus `@media (prefers-reduced-motion: no-preference)`
+   supaya tanpa JS ATAU dengan reduced-motion aktif, semua konten tetap tampil
+   penuh sejak awal (progressive enhancement, bukan "hidden sampai JS jalan").
+
+   Signature move-nya cuma satu: foto arsip Hero perlahan zoom-in ("Ken Burns"),
+   meniru bahasa visual film dokumenter — cocok untuk seri "Dengar Stori" yang
+   menelusuri arsip menuju Proklamasi. Sisanya sengaja dibuat tenang & seragam
+   supaya gerakan yang satu ini yang paling diingat, bukan tenggelam di antara
+   banyak efek kecil.
+   -------------------------------------------------------------------------- */
+:root { --reveal-step: 70ms; }
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal] {
+    opacity: 0;
+    transition: opacity .7s cubic-bezier(.16, .9, .24, 1), transform .7s cubic-bezier(.16, .9, .24, 1);
+    transition-delay: calc(var(--reveal-step) * var(--rd, 0));
+  }
+  [data-reveal="up"]    { transform: translateY(28px); }
+  [data-reveal="scale"] { transform: translateY(14px) scale(.95); }
+  [data-reveal="fade"]  { transform: none; }
+  [data-reveal].is-visible { opacity: 1; transform: none; }
+
+  [data-reveal-delay="0"] { --rd: 0; }
+  [data-reveal-delay="1"] { --rd: 1; }
+  [data-reveal-delay="2"] { --rd: 2; }
+  [data-reveal-delay="3"] { --rd: 3; }
+  [data-reveal-delay="4"] { --rd: 4; }
+  [data-reveal-delay="5"] { --rd: 5; }
+  [data-reveal-delay="6"] { --rd: 6; }
+
+  /* Pemenang: langkah stagger sedikit lebih pelan — kesan "diumumkan satu per
+     satu", cocok untuk momen pengumuman, bukan sekadar UI berbaris biasa. */
+  .winners__grid { --reveal-step: 110ms; }
+
+  /* Signature: dokumenter push-in yang sangat lambat & halus. */
+  .hero__photo-img { animation: heroKenBurns 26s ease-in-out infinite alternate; }
+}
+
+@keyframes heroKenBurns {
+  from { transform: scale(1); }
+  to   { transform: scale(1.07); }
+}
+
+/* Transisi antar-state untuk dua momen interaktif (ganti langkah Cara Main,
+   jawab kuis) — fade-through singkat lewat JS (lihat crossfade() di main.js)
+   supaya pergantian konten tidak terasa dipotong mendadak. */
+@media (prefers-reduced-motion: no-preference) {
+  .showcase__item,
+  .quiz__state {
+    transition: opacity .18s ease;
+  }
+  .showcase__item.is-swapping,
+  .quiz__state.is-swapping {
+    opacity: 0;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   15. Motion preferences
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+}
