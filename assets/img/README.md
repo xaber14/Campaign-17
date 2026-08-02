@@ -12,9 +12,26 @@ dipakai dan fallback-nya hilang — tanpa perlu mengubah kode.
 | `winners-map.png`        | 1440 × 431      | Latar peta titik-titik Pengumuman Pemenang | `335:2291` | ✅ terpasang |
 | `logo-dengar-stori.png`  | 166 × 148       | Logo "Dengar Stori" di Hero       | `335:69`    | ✅ terpasang |
 | `hadiah-podium.png`      | 333 × 222       | Foto podium hadiah (transparan) di kartu "Menangkan Hadiah" | `362:1834` | ✅ terpasang |
-| `cara-main-1.png`        | 588 × 553       | Visual langkah 1 (Cara Main)      | `343:4476`  | belum ada |
-| `cara-main-2.png`        | 588 × 553       | Visual langkah 2 (Cara Main)      | `343:4476`  | belum ada |
-| `cara-main-3.png`        | 588 × 553       | Visual langkah 3 (Cara Main)      | `343:4476`  | belum ada |
+| `cara-main-1.jpg`        | 1100 × 1100     | Visual langkah 1, tab **Instastory** | —        | ✅ terpasang |
+| `cara-main-2.jpg`        | 1100 × 1100     | Visual langkah 2, tab **Instastory** | —        | ✅ terpasang |
+| `cara-main-3.jpg`        | 1100 × 1100     | Visual langkah 3, tab **Instastory** | —        | ✅ terpasang |
+| `cara-main-mediopods-1.jpg` | 1100 × 1100  | Visual langkah 1, tab **Mediopods**  | —        | ✅ terpasang |
+| `cara-main-mediopods-2.jpg` | 1100 × 1100  | Visual langkah 2, tab **Mediopods**  | —        | ✅ terpasang |
+| `cara-main-mediopods-3.jpg` | 1100 × 1100  | Visual langkah 3, tab **Mediopods**  | —        | ✅ terpasang |
+| `cara-main-4.jpg`        | 1100 × 1100     | Visual langkah 4 — **dipakai bersama** kedua tab | — | ✅ terpasang |
+| `footer-logo.png`        | 275 × 55        | Logo Kompas.com di footer          | `1:405` (file `Wpib0…`) | ✅ terpasang |
+| `footer-store-appstore.png` | 196 × 66     | Badge "Download di App Store"     | `1:436`     | ✅ terpasang |
+| `footer-store-googleplay.png` | 222 × 66   | Badge "Temukan di Google Play"    | `1:437`     | ✅ terpasang |
+| `footer-award-wowbrand.png` | 70 × 55      | Badge "Progress WOW Brand 2019"   | `1:441`     | ✅ terpasang |
+| `footer-award-superbrands.png` | 63 × 60   | Badge "Superbrands Indonesia's Choice" | `1:442` | ✅ terpasang |
+| `footer-award-factchecking.png` | 65 × 65  | Badge "Internews Fact-checking Signatory" | `1:443` | ✅ terpasang |
+| `footer-icon-facebook.svg` | 16 × 16       | Ikon sosial Facebook (inline jadi `#i-facebook`) | `1:411` | ✅ dipakai |
+| `footer-icon-x.svg`      | 16 × 16.31      | Ikon sosial X (inline jadi `#i-x`)  | `1:415`     | ✅ dipakai |
+| `footer-icon-instagram.svg` | 20 × 20      | Referensi ikon Instagram footer (tidak dipakai langsung — dipetakan ke `#i-instagram` yang sudah ada) | `1:419` | referensi |
+| `footer-icon-linkedin.svg` | 16.79 × 16    | Ikon sosial **LINE** (nama file keliru saat diunduh — isinya logo blob LINE, bukan LinkedIn; inline jadi `#i-line`) | `1:426` | ✅ dipakai |
+| `footer-icon-tiktok.svg` | 32 × 32         | Referensi ikon TikTok (inline jadi `#i-tiktok`, self-contained — lingkaran + logo satu unit) | `1:432` | referensi |
+| `footer-icon-mail.svg`   | 24 × 24         | Referensi ikon amplop tombol newsletter (inline jadi `#i-mail`) | `1:448` | referensi |
+| `footer-line.svg`        | 1440 × 4        | Garis pembatas atas footer — **tidak dipakai sebagai file**, diganti `border-top` CSS (`#515151`, 4px) karena hasilnya identik dan lebih ringan | `1:475` | tidak dipakai |
 
 ## Catatan per slot
 
@@ -52,21 +69,39 @@ Sama seperti aset Hero, fade ke warna section **sudah ter-bake**: baris paling a
 gambar terukur `rgb(27,26,22)` = `#1C1A16`. Jadi tidak perlu veil tambahan, dan
 sisa area Section 2 di atasnya cukup solid `#1C1A16` — sambungannya tak terlihat.
 
-### Visual "Cara Main" (`cara-main-1..3.png`)
+### Visual "Cara Main" (`cara-main-*.jpg`)
 
-Panel kanan pada section Cara Main **berganti mengikuti langkah yang diklik user**.
-Di Figma panel ini (`343:4476`, 588×553) masih frame kosong, jadi asetnya belum ada.
+Panel kanan pada section Cara Main **berganti mengikuti langkah yang diklik user**
+(lihat `selectStep()` di `assets/js/main.js`). Sumbernya file `Instastory_1.png` ..
+`Instastory_4.png` di root folder — mockup foto HP berlatar gelap, masing-masing
+1254×1254 (2–2,1 MB). Di-resize ke 1100px + dikompres JPEG kualitas 82 (turun ke
+~105–170 KB per file) karena sumbernya opaque (tanpa transparansi).
 
-- **Langkah 1–3** memakai slot gambar di atas; selama file belum ada, yang tampil
-  placeholder bergaris putus-putus berisi nama file yang dibutuhkan.
-- **Langkah 4 tidak butuh gambar** — visualnya adalah mockup artikel + sisipan kuis
-  yang dibuat dari HTML/CSS dan bisa diklik (sesuai teks langkah 4: *"lihat contohnya
-  di sebelah kanan"*). Kalau `cara-main-4.png` nanti mau dipakai sebagai gambar statis,
-  markup-nya perlu diubah dulu.
+> ⚠️ **Perubahan struktural (riwayat):** sebelumnya langkah 4 memakai mockup HTML/CSS
+> interaktif (frame browser palsu + kartu kuis yang bisa diklik, menunjukkan state
+> "sebelum menjawab" → "sudah selesai"). Markup itu (`.preview`, `.quiz`, dst.) sudah
+> dihapus total dari `index.html`, `styles.css`, dan `main.js` — digantikan gambar
+> statis langkah 4 (`cara-main-4.jpg`, sebuah screenshot asli tampilan kuis di
+> artikel). Kalau demo interaktifnya masih diinginkan, tinggal minta.
 
-Keempat visual ini **dipakai bersama** oleh tab Instastory dan Mediopods. Kalau tiap
-tab perlu visual berbeda, tambahkan set slot kedua dan filter berdasarkan tab aktif
-di `selectStep()` pada `assets/js/main.js`.
+**Instastory dan Mediopods sekarang punya set visual sendiri-sendiri** untuk langkah
+1–3 (awalnya sempat berbagi 1 set gambar, tapi tidak akurat karena flow keduanya
+beda — Mediopods lewat homepage→kategori podcast→player, bukan lewat Instastory).
+Strukturnya di `index.html`:
+
+- Desktop: dua `<div class="showcase">` terpisah — `#showcase-instastory` dan
+  `#showcase-mediopods` — di dalam `.play__body` yang sama. Hanya satu yang
+  `hidden=false` di satu waktu, ditentukan oleh tab yang aktif (`initTabs()` di
+  `main.js` men-toggle `hidden`-nya, mirip pola `#panel-instastory`/`#panel-mediopods`).
+  `selectStep()` sengaja dibatasi query-nya ke `.showcase:not([hidden]) [data-showcase-step]`
+  supaya klik langkah di satu tab tidak menyentuh showcase tab lainnya.
+- Mobile: `#carousel-instastory` dan `#carousel-mediopods` (lihat bagian carousel di
+  bawah) masing-masing punya 4 `<img>` slide sendiri.
+
+**Langkah 4 tetap satu gambar yang sama** (`cara-main-4.jpg`) untuk kedua tab — sudah
+tepat begitu, karena "Jawab kuis di artikel" adalah titik temu kedua flow (baik dari
+Instastory maupun Mediopods, user berakhir di artikel yang sama), jadi tidak perlu
+gambar terpisah.
 
 **`winners-map.png`** — latar peta dunia bertitik di section Pengumuman Pemenang
 (Figma "Maps", node `335:2291`).
@@ -121,9 +156,28 @@ blur" di Figma yang tidak ikut ter-export. `blur(48px)` di CSS adalah kalibrasi 
 manual terhadap screenshot referensi, **bukan** angka yang terbaca langsung dari Figma
 — satu-satunya bagian dari update ini yang tidak 100% presisi by-the-numbers.
 
-**Preview kuis di dalam artikel** (`335:518`, 588 × 553) **tidak butuh gambar** — bagian itu
-dibangun sebagai mockup HTML/CSS yang benar-benar bisa diklik, supaya sekaligus
-memperagakan perubahan state setelah user menjawab.
+### Footer (`footer-*`)
+
+Semua aset footer diunduh dari file Figma terpisah (`Wpib0W14AVOuahrL5rJXNL`, node
+`1:4891`) — bukan file utama campaign ini. `download_assets` tidak menjamin urutan
+`rawImages` sama dengan urutan konstanta `imgImage`, `imgImage1`... di kode referensi,
+jadi setiap file dicek ulang (rasio aspek dibandingkan ke ukuran presisi yang tertulis
+di kode Figma) sebelum diberi nama final — beberapa sempat salah nama di percobaan
+pertama (badge App Store/Google Play dan 3 badge penghargaan sempat tertukar posisi).
+
+**`footer-icon-linkedin.svg` sebenarnya adalah logo LINE**, bukan LinkedIn — nama filenya
+dipertahankan apa adanya (tidak di-rename ulang) supaya jejak unduhan tetap jelas, tapi
+di kode (`index.html`) sudah dipakai dengan benar sebagai simbol `#i-line` dengan
+`aria-label="LINE"`. Ini masuk akal secara konteks: Kompas.com (media Indonesia)
+lazimnya mencantumkan kanal LINE, bukan LinkedIn, di deretan sosial medianya.
+
+Ikon TikTok (`footer-icon-tiktok.svg`, dipetakan ke path internal `#i-tiktok`) di kode
+Figma-nya diberi nama layer `pinterest` meski frame pembungkusnya bernama `tik_tok` dan
+posisinya di urutan ikon sosial (setelah LINE) — kemungkinan sisa salin-tempel dari
+komponen lain di file Figma tersebut. Path-nya tetap direplikasi persis seperti yang
+diberikan Figma (bukan diganti dengan logo TikTok generik), konsisten dengan prinsip
+mengikuti Figma apa adanya di proyek ini; url tautan tetap mengarah ke TikTok karena
+itu jelas maksud penempatannya.
 
 ## Kalau nama file perlu berbeda
 

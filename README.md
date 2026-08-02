@@ -41,8 +41,12 @@ Urutan section mengikuti Figma:
 2. **Hero** — judul, deskripsi, 2 CTA (Instastory / Mediopods), dan 3 fakta campaign
    (Periode, Pemenang, Total Hadiah)
 3. **Menangkan Hadiah Menarik** — kartu info hadiah
-4. **Bagaimana Cara Mainnya?** — 4 langkah dengan tab **Instastory** / **Mediopods**,
-   plus preview interaktif sisipan kuis di dalam artikel
+4. **Bagaimana Cara Mainnya?** — 4 langkah dengan tab **Instastory** / **Mediopods**.
+   Desktop/tablet (>640px): visual di kanan **auto-slide tiap 5 detik** (loop 1→4→1),
+   plus chevron kiri/kanan di atas gambar dan titik indikator di bawahnya (lihat bagian
+   Showcase Desktop di bawah). Mobile (≤640px): tampil sebagai **carousel** — gambar
+   dulu, judul & deskripsi di bawahnya, geser otomatis tiap 5 detik atau swipe manual
+   (lihat bagian Carousel Mobile di bawah)
 5. **Pengumuman Pemenang** — 4 pemenang; *tampil hanya di akhir periode* (lihat di bawah)
 6. **Syarat dan Ketentuan** — 6 poin
 7. **Footer** — footer Kompas.com
@@ -61,13 +65,13 @@ var CAMPAIGN = {
 
   links: {
     instagram: 'https://www.instagram.com/kompascom/',
-    mediopods: 'https://www.kompas.com/mediopods'
+    mediopods: 'https://mediopods.kompas.com/'
   }
 };
 ```
 
-> Tautan Instagram & Mediopods di atas adalah dugaan — **tolong dicek** dan disesuaikan
-> dengan URL kanal yang benar.
+> Tautan Mediopods sudah dikonfirmasi (`https://mediopods.kompas.com/`). Tautan Instagram
+> masih dugaan — **tolong dicek** dan disesuaikan dengan URL kanal yang benar kalau perlu.
 
 ### Section Pemenang: muncul otomatis di akhir periode
 
@@ -103,9 +107,26 @@ dari sisi server (atau ambil datanya via API setelah tanggal pengumuman) — buk
 **Gambar** — 4 aset raster dari Figma belum bisa diunduh. Detail slot & ukurannya ada di
 [`assets/img/README.md`](assets/img/README.md). Halaman tetap tampil utuh tanpa file-file itu.
 
-**Footer** — komponen footer di Figma adalah instance library yang isinya tidak terekspos,
-jadi footer di sini direkonstruksi dari screenshot: logo, sosial media, badge aplikasi,
-kolom Kanal & Network, form langganan, dan bar legal. Daftar link masih `href="#"`.
+**Footer** — dibangun ulang persis dari Figma file terpisah `Wpib0W14AVOuahrL5rJXNL`,
+node `1:4891` ("footer - desktop"): logo, 5 ikon sosial (Facebook, X, Instagram, LINE,
+TikTok), 2 badge unduh aplikasi, 3 badge penghargaan/sertifikat, tombol newsletter,
+kolom **Kanal** (3 sub-kolom × 12/12/11 link), kolom **Network** (13 link), dan bar
+legal (7 link + copyright). Semua warna & ukuran mengikuti variabel yang sudah ada di
+`styles.css` (`--platinum`, `--platinum-light`, `--charcoal-light`, `--yale-blue-50`,
+dst.) — tidak ada token baru. Daftar link Kanal/Network/legal masih `href="#"` (Figma
+tidak menyediakan URL tujuan).
+
+> ⚠️ **Copyright tahun di Figma tertulis "2008 - 2023"**, bukan tahun campaign ini
+> (2026). Diikuti apa adanya sesuai Figma — tolong konfirmasi apakah perlu diubah ke
+> tahun berjalan.
+
+Ikon sosial Facebook/X/LINE dibuat sebagai `<symbol>` baru di sprite SVG (`#i-facebook`,
+`#i-x`, `#i-line`) memakai path persis dari Figma (lihat `assets/img/README.md` untuk
+provenance file mentahnya). Instagram memakai simbol yang sudah ada (`#i-instagram`,
+sengaja tidak dibuat duplikat karena bentuknya sudah setara). TikTok (`#i-tiktok`)
+dibuat self-contained (lingkaran + logo jadi satu unit), **tidak** dibungkus lingkaran
+bordered seperti 4 ikon lainnya — sesuai struktur asli di Figma di mana `tik_tok` adalah
+satu grup mandiri, bukan ikon di dalam frame lingkaran terpisah.
 
 **Ikon** — di Figma memakai Phosphor Icons untuk sebagian besar section. Di sini ikonnya
 inline SVG buatan sendiri dengan bentuk yang setara, supaya tidak menambah dependency.
@@ -118,6 +139,74 @@ langsung di `.topbar__brand` pada `index.html`, bukan file/placeholder terpisah.
 
 **Form langganan newsletter** di footer belum terhubung ke endpoint mana pun (submit-nya
 di-`preventDefault`). Lihat `initNewsletter()` di `assets/js/main.js`.
+
+## Carousel mobile — Bagaimana Cara Mainnya (≤640px)
+
+Di layar ≤640px, section Cara Main **tidak** memakai layout desktop (list langkah +
+satu visual bersama di kanan). Sebagai gantinya tampil carousel: tiap slide berisi
+**gambar dulu, lalu judul dan deskripsi di bawahnya** — geser otomatis tiap 5 detik,
+atau bisa digeser manual (swipe, drag, atau klik titik pagination).
+
+Markup-nya ada di `index.html`: dua blok `.steps-carousel` (`#carousel-instastory` dan
+`#carousel-mediopods`), masing-masing 4 slide `<li class="steps-carousel__slide">`.
+Kontennya **sengaja diduplikasi** dari `.steps` di atasnya (bukan digenerate lewat
+JS) — konsisten dengan pola dua panel Instastory/Mediopods yang memang sudah
+duplikat sejak awal. **Kalau copy salah satu langkah diubah, ubah juga di sini.**
+
+Perilakunya diatur `initStepsCarousel` (bagian §3d) di `assets/js/main.js`:
+
+- **Auto-geser** tiap 5 detik lewat `setInterval`, berhenti selagi track disentuh
+  (`pointerdown`) dan lanjut lagi 5 detik dari awal setelah dilepas (`pointerup`).
+- **Swipe manual** memakai native CSS `scroll-snap` (`overflow-x:auto` +
+  `scroll-snap-type:x mandatory`) — bukan kode drag/touch sendiri, supaya terasa
+  seperti scroll asli (momentum, dsb.) dan otomatis jalan di trackpad/mouse-drag juga.
+- **Titik pagination** dibuat otomatis oleh JS (bukan hardcoded di HTML) mengikuti
+  jumlah slide, dan disinkronkan balik ke posisi scroll asli lewat event `scroll`
+  (jadi tetap benar walau user swipe manual, bukan cuma lewat klik titik).
+- **`prefers-reduced-motion: reduce`** — auto-geser dimatikan total (bukan cuma
+  dipercepat), geser manual (klik titik) jadi instan tanpa animasi smooth-scroll.
+- Ganti tab Instastory ↔ Mediopods otomatis mengganti carousel yang tampil dan
+  me-reset ke slide 1, menyalakan timer carousel yang baru aktif dan mematikan
+  timer carousel yang disembunyikan (supaya tidak ada dua timer jalan bersamaan
+  untuk carousel yang lagi tidak terlihat).
+- **Baru mulai auto-geser setelah section ini benar-benar scroll ke viewport**
+  (lihat §3e `initPlaySectionAutoplayGate` — sama dengan showcase desktop di
+  bawah, penjelasan lengkapnya ada di situ).
+
+> Breakpoint 640px dipilih supaya konsisten dengan definisi "mobile" yang sudah
+> dipakai di breakpoint lain pada file ini (bukan breakpoint 1060px tempat layout
+> desktop biasanya sudah stack jadi satu kolom — di rentang 641–1060px, section ini
+> tetap pakai layout list+visual-bersama seperti desktop, cuma disusun vertikal).
+
+## Showcase desktop — Bagaimana Cara Mainnya (>640px)
+
+Visual di kanan section Cara Main (`.showcase`) auto-slide tiap **5 detik**, loop
+1→2→3→4→1, dengan chevron kiri/kanan di atas gambar untuk ganti manual dan titik
+indikator (non-klik, sekadar penanda posisi) di bawahnya. Diatur di bagian §3c
+`assets/js/main.js` (`showcaseAutoplay`, satu registry per elemen `.showcase`, keyed
+by `id`):
+
+- Chevron manual dan auto-advance sama-sama lewat `selectStep()` — sumber kebenaran
+  yang sama dipakai daftar langkah kiri, showcase kanan, dan titik indikator, jadi
+  ketiganya selalu sinkron dari kontrol mana pun.
+- **Hover pause** — arahkan kursor ke showcase menghentikan timer; menjauhkan kursor
+  melanjutkan hitungan 5 detik dari awal.
+- Ganti tab (Instastory ↔ Mediopods) menghentikan timer showcase yang disembunyikan
+  dan menyalakan timer showcase yang baru aktif (tidak pernah dua timer jalan
+  bersamaan untuk showcase yang tidak terlihat).
+- Klik langkah di daftar kiri me-restart hitungan 5 detik, sama seperti klik chevron.
+- `prefers-reduced-motion: reduce` mematikan auto-advance total (bukan cuma
+  dipercepat) — chevron & klik langkah tetap berfungsi.
+- **Auto-advance baru mulai setelah user scroll sampai section ini kelihatan**,
+  bukan langsung jalan sejak halaman dimuat — supaya tidak ada slide yang
+  "kelewat" sebelum sempat dilihat. Diatur `initPlaySectionAutoplayGate` (§3e di
+  `assets/js/main.js`): satu `IntersectionObserver` mengamati `.play` (section
+  pembungkus, bukan showcase/carousel-nya langsung — supaya aman walau salah
+  satu di antaranya `display:none` lewat breakpoint), lalu menyalakan timer
+  showcase **atau** carousel yang sedang aktif begitu section masuk viewport
+  (threshold 15%, `rootMargin` -10% sama seperti `initScrollReveal`), lalu
+  observer-nya langsung berhenti mengamati (sekali jalan saja). Setelah itu,
+  perilaku hover-pause / ganti-tab / klik-manual tetap seperti biasa.
 
 ## Motion / Animasi
 
@@ -142,9 +231,18 @@ elemen baru: kasih `data-reveal`, atau biarkan tanpa atribut itu kalau tidak per
 cocok untuk tema "Dengar Stori". Ini satu-satunya gerakan yang dibuat mencolok — bagian
 lain sengaja dibuat tenang & seragam.
 
-**3. Transisi konten** — pergantian visual di panel Cara Main (klik langkah 1-4) dan
-state kuis (tanya → selesai) pakai fade-through singkat (`crossfade()` di main.js),
-bukan potongan instan.
+**3. Transisi konten** — pergantian gambar di panel Cara Main (klik langkah 1-4) pakai
+fade-through singkat (`crossfade()` di main.js), bukan potongan instan.
+
+**4. Shimmer banner Hadiah** — garis cahaya cream tipis (16% lebar kartu) dan redup,
+dimiringkan 20° dan di-blur tebal (28px), yang menyapu kartu "Menangkan Hadiah
+Menarik" (`.prize`) dari kiri ke kanan (`@keyframes shimmerSweep`, siklus 2,8 detik:
+~1,5 detik menyapu + ~1,3 detik diam). Warnanya cream `rgba(255,230,176,.08)` —
+bukan putih — supaya menyatu dengan gradient card yang sudah keemasan, bukan
+berkesan sorotan lampu. Easing custom (`cubic-bezier(.45,0,.55,1)`) membuat
+gerakannya melandai di kedua ujung, bukan meluncur lalu berhenti mendadak. Semua
+ukurannya pakai persen (relatif ke `.prize` sendiri) supaya otomatis menyesuaikan
+saat kartu berubah proporsi antara desktop dan mobile.
 
 Kalau mau menambah elemen baru ke sistem reveal: tambahkan `data-reveal="up"` (paling
 umum), `="scale"` (untuk kartu/gambar), atau `="fade"` (untuk teks kecil/caption).
@@ -155,8 +253,12 @@ sesuai urutan.
 
 - Tab "Cara Main" pakai pola ARIA tablist penuh — navigasi panah kiri/kanan, Home, End.
 - Ada skip link ke konten utama.
-- `prefers-reduced-motion` dihormati — scroll reveal, Ken Burns, dan fade-through
-  semuanya nonaktif total (bukan cuma dipercepat) saat preferensi ini aktif.
+- `prefers-reduced-motion` dihormati — scroll reveal, Ken Burns, fade-through, shimmer
+  banner Hadiah, auto-geser carousel mobile, dan auto-slide showcase desktop semuanya
+  nonaktif total (bukan cuma dipercepat) saat preferensi ini aktif.
+- Carousel mobile berhenti auto-geser selagi disentuh (tap-and-hold/drag), dan showcase
+  desktop berhenti auto-slide selagi kursor di atasnya (hover) — sesuai prinsip WCAG
+  "pause, stop, hide" untuk konten yang bergerak otomatis.
 - Semua elemen dekoratif diberi `aria-hidden`.
 
 ## Responsif

@@ -377,11 +377,11 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: var(--b3);
+  font-size: 16px;
   color: var(--neutral-pale);
 }
 .fact__icon { width: 16px; height: 16px; flex: none; }
-.fact__value { font-size: var(--b2); font-weight: 700; color: var(--white); }
+.fact__value { font-size: 18px; font-weight: 700; color: var(--white); }
 .fact__sep {
   width: 5px; height: 5px;
   border-radius: 50%;
@@ -639,15 +639,62 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
 }
 
 /* --------------------------------------------------------------------------
-   9. Showcase — visual kanan yang berganti per langkah (Figma 343:4476, 588×553)
+   9. Showcase — visual kanan yang berganti per langkah (Figma 343:4476, 588×553).
+   Aset asli (cara-main-1..4.jpg) semuanya persegi 1:1 — aspect-ratio di sini
+   sengaja disamakan ke 1/1 (bukan 588/553 seperti frame Figma) supaya
+   object-fit:cover tidak memotong atas/bawah gambar sama sekali.
    -------------------------------------------------------------------------- */
-.showcase { min-height: 553px; }
+.showcase { position: relative; min-height: 588px; }
 .showcase__item { margin: 0; }
 .showcase__item .opt-img {
   width: 100%;
-  aspect-ratio: 588 / 553;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
   border-radius: var(--radius-lg);
+}
+
+/* Navigasi manual desktop: chevron di atas gambar + titik indikator di bawahnya.
+   Figure yang hidden tidak ikut alur normal (display:none), jadi chevron bisa
+   absolut relatif ke .showcase, dan baris titik otomatis jatuh di bawah gambar
+   yang sedang tampil lewat urutan dokumen biasa. */
+.showcase__nav {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  transform: translateY(-50%);
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 50%;
+  background: rgba(28, 26, 22, .6);
+  color: var(--white);
+  transition: background-color .18s ease, border-color .18s ease, transform .18s ease;
+}
+.showcase__nav:hover { background: var(--gold); border-color: transparent; }
+.showcase__nav:active { transform: translateY(-50%) scale(.92); }
+.showcase__nav--prev { left: 12px; }
+.showcase__nav--next { right: 12px; }
+
+/* Titik indikator — cuma penanda posisi, bukan tombol (navigasi lewat chevron
+   atau klik langkah di kiri). */
+.showcase__dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+.showcase__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .25);
+  transition: background-color .2s ease, width .2s ease;
+}
+.showcase__dot.is-active {
+  width: 18px;
+  background: var(--gold);
 }
 
 /* Placeholder sampai aset asli tersedia */
@@ -658,7 +705,7 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
   justify-content: center;
   gap: 12px;
   width: 100%;
-  aspect-ratio: 588 / 553;
+  aspect-ratio: 1 / 1;
   padding: 24px;
   text-align: center;
   border: 1px dashed var(--line-strong);
@@ -679,135 +726,83 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
 }
 
 /* --------------------------------------------------------------------------
-   9b. Preview kuis di artikel (visual langkah 4)
+   9b. Carousel Cara Main — MOBILE ONLY (≤640px). Lihat main.js initStepsCarousel().
+   Disembunyikan sepenuhnya di desktop/tablet lewat display:none; muncul dan
+   menggantikan .play__body (list langkah + showcase bersama) lewat breakpoint
+   di §13 Responsive. Struktur per slide: gambar → judul → deskripsi.
    -------------------------------------------------------------------------- */
-.preview { display: flex; flex-direction: column; gap: 12px; }
-.preview__frame {
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-lg);
-  background: #131210;
-  overflow: hidden;
-  box-shadow: 0 30px 70px -40px rgba(0, 0, 0, .9);
-}
-.preview__chrome {
+.steps-carousel { display: none; }
+
+.steps-carousel__track {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 14px;
-  background: rgba(255, 255, 255, .05);
-  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
-.preview__dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, .22); }
-.preview__url {
-  margin-left: 10px;
-  padding: 3px 10px;
-  font-size: 11px;
-  color: var(--neutral-base);
-  background: rgba(255, 255, 255, .05);
-  border-radius: 999px;
+.steps-carousel__track::-webkit-scrollbar { display: none; }
+
+.steps-carousel__slide {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
-.preview__page { padding: 20px; }
-.preview__kicker {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .14em;
-  color: var(--gold-hover);
-  margin-bottom: 8px;
+.steps-carousel__img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
 }
-.preview__headline {
-  font-size: var(--b1);
-  font-weight: 700;
-  line-height: 1.35;
+
+.steps-carousel__copy {
+  position: relative;
+  padding: 20px 4px 0;
+}
+.steps-carousel__num {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin-bottom: 10px;
+  border-radius: 7px;
+  background: var(--gold);
   color: var(--white);
-  margin-bottom: 14px;
-}
-.preview__lines { display: flex; flex-direction: column; gap: 8px; }
-.preview__lines span {
-  height: 7px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, .09);
-}
-.preview__lines span.is-short { width: 58%; }
-.preview__caption {
-  font-size: var(--b3);
-  color: var(--neutral-base);
-  text-align: center;
-}
-
-/* Sisipan kuis */
-.quiz {
-  margin: 16px 0;
-  padding: 18px;
-  background: linear-gradient(180deg, rgba(165, 114, 4, .16) 0%, rgba(165, 114, 4, .05) 100%);
-  border: 1px solid rgba(255, 230, 176, .22);
-  border-radius: var(--radius);
-}
-.quiz__eyebrow {
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: .1em;
-  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+.steps-carousel__title {
+  font-size: var(--b1);
+  font-weight: 600;
+  line-height: var(--lh);
   color: var(--cream);
   margin-bottom: 8px;
 }
-.quiz__question {
+.steps-carousel__text {
   font-size: var(--b2);
-  font-weight: 600;
-  line-height: 1.4;
-  color: var(--white);
-  margin-bottom: 14px;
-}
-.quiz__options { display: grid; gap: 8px; }
-.quiz__option {
-  padding: 10px 14px;
-  text-align: left;
-  font-size: var(--b3);
-  color: var(--neutral-30);
-  background: rgba(255, 255, 255, .05);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  transition: background-color .16s ease, border-color .16s ease, color .16s ease;
-}
-.quiz__option:hover {
-  background: rgba(255, 230, 176, .12);
-  border-color: rgba(255, 230, 176, .45);
-  color: var(--white);
-}
-.quiz__option.is-picked {
-  background: rgba(255, 230, 176, .2);
-  border-color: var(--cream);
-  color: var(--white);
-}
-
-.quiz__done { text-align: center; padding-block: 6px; }
-.quiz__badge {
-  display: grid;
-  place-items: center;
-  width: 44px; height: 44px;
-  margin: 0 auto 12px;
-  border-radius: 50%;
-  color: #1C1A16;
-  background: var(--cream);
-}
-.quiz__done-title {
-  font-size: var(--b2);
-  font-weight: 700;
-  color: var(--white);
-  margin-bottom: 6px;
-}
-.quiz__done-text {
-  font-size: var(--b3);
-  line-height: 1.5;
+  line-height: var(--lh);
   color: var(--neutral-pale);
 }
-.quiz__reset {
-  margin-top: 12px;
-  font-size: var(--b3);
-  font-weight: 600;
-  color: var(--cream);
-  text-decoration: underline;
-  text-underline-offset: 3px;
+
+.steps-carousel__dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+.steps-carousel__dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .25);
+  transition: width .2s ease, background-color .2s ease;
+}
+.steps-carousel__dot.is-active {
+  width: 22px;
+  background: var(--gold);
 }
 
 /* --------------------------------------------------------------------------
@@ -950,110 +945,83 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
 .tnc__item:last-child { padding-bottom: 0; }
 
 /* --------------------------------------------------------------------------
-   12. Footer — Figma 335:2194
+   12. Footer — Figma 1:4891 (Wpib0W14AVOuahrL5rJXNL)
    -------------------------------------------------------------------------- */
 .site-footer {
-  background: #0D0C0A;
-  border-top: 1px solid rgba(255, 255, 255, .06);
-  font-size: var(--b3);
+  background: #000;
+  border-top: 4px solid var(--charcoal-light);
+  padding-block: 16px 48px;
+  font-size: 14px;
   color: var(--charcoal-white);
 }
-.site-footer__grid {
-  display: grid;
-  grid-template-columns: minmax(0, 320px) minmax(0, 1fr) minmax(0, 220px);
-  gap: 48px;
-  padding-block: 48px;
+.site-footer__row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 40px;
+  padding-block: 40px 24px;
+  border-bottom: 1px solid var(--charcoal-light);
 }
 
-.fbrand { display: inline-flex; align-items: baseline; font-weight: 700; font-size: 26px; letter-spacing: -0.03em; }
-.fbrand__kompas { color: var(--white); }
-.fbrand__dot { color: var(--flag-red); }
+.fcol--brand { display: flex; flex-direction: column; gap: 32px; flex: 0 0 auto; max-width: 330px; }
 
-.fsocial { display: flex; gap: 8px; margin-top: 18px; }
-.fsocial a {
+.flogo { display: block; position: relative; width: 187px; height: 26px; overflow: hidden; }
+.flogo img { position: absolute; left: -4.28%; top: 0; width: 104.28%; height: 150%; max-width: none; }
+
+.fsocial { display: flex; gap: 8px; }
+.fsocial__icon {
   display: grid; place-items: center;
-  width: 30px; height: 30px;
-  font-size: 12px; font-weight: 600;
-  color: var(--neutral-pale);
-  background: rgba(255, 255, 255, .07);
-  border-radius: 50%;
-  transition: background-color .18s ease, color .18s ease;
+  width: 32px; height: 32px;
+  border: 1px solid #FBFBFB;
+  border-radius: 999px;
+  color: #FBFBFB;
+  transition: background-color .18s ease, border-color .18s ease, color .18s ease;
 }
-.fsocial a:hover { background: var(--yale-blue-50); color: var(--white); }
+.fsocial__icon:hover { background: var(--yale-blue-50); border-color: transparent; color: var(--white); }
+.fsocial__icon--plain { border: none; width: 32px; height: 32px; }
 
-.fcol__label {
-  margin-top: 24px;
-  margin-bottom: 10px;
-  font-size: 12px;
-  color: var(--charcoal-lightest);
-}
-.fstores { display: flex; gap: 8px; flex-wrap: wrap; }
-.fstore {
-  display: flex; flex-direction: column;
-  padding: 7px 12px;
-  border: 1px solid rgba(255, 255, 255, .18);
-  border-radius: 8px;
-  transition: border-color .18s ease, background-color .18s ease;
-}
-.fstore:hover { border-color: rgba(255, 255, 255, .4); background: rgba(255, 255, 255, .05); }
-.fstore__sub { font-size: 8px; letter-spacing: .06em; color: var(--charcoal-lightest); text-transform: uppercase; }
-.fstore__main { font-size: 13px; font-weight: 600; color: var(--white); }
+.fstores { display: flex; gap: 16px; }
+.fstore { display: block; line-height: 0; opacity: 1; transition: opacity .18s ease; }
+.fstore:hover { opacity: .82; }
 
-.fverify { display: flex; gap: 8px; flex-wrap: wrap; }
-.fverify__chip {
-  padding: 5px 10px;
-  font-size: 11px;
-  color: var(--neutral-pale);
-  background: rgba(255, 255, 255, .06);
-  border-radius: 6px;
-}
+.fawards { display: flex; flex-direction: column; gap: 8px; }
+.fawards__label { font-size: 12px; line-height: 1.4; color: var(--charcoal-lightest); max-width: 156px; }
+.fawards__row { display: flex; gap: 13px; align-items: flex-start; }
 
-.fnews__label { margin-top: 24px; margin-bottom: 10px; font-size: 12px; color: var(--charcoal-lightest); }
-.fnews { display: flex; gap: 8px; flex-wrap: wrap; }
-.fnews__input {
-  flex: 1 1 150px;
-  min-width: 0;
-  padding: 9px 12px;
-  font: inherit;
-  color: var(--white);
-  background: rgba(255, 255, 255, .06);
-  border: 1px solid rgba(255, 255, 255, .16);
-  border-radius: 8px;
-}
-.fnews__input::placeholder { color: var(--charcoal-lightest); }
+.fnews { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.fnews__label { font-size: 14px; line-height: 1.4; color: var(--charcoal-white); max-width: 166px; }
 .fnews__btn {
-  padding: 9px 14px;
-  font-size: var(--b3); font-weight: 600;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 16px;
+  font-size: 14px; font-weight: 400;
   color: var(--white);
   background: var(--yale-blue-50);
-  border-radius: 8px;
+  border-radius: 5px;
   transition: filter .18s ease;
 }
-.fnews__btn:hover { filter: brightness(1.12); }
+.fnews__btn:hover { filter: brightness(1.1); }
 
-.fcol__title {
-  margin-bottom: 14px;
-  font-size: var(--b2);
-  font-weight: 700;
-  color: var(--white);
-}
-.flinks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
-.fcol--links li, .fcol--network li { margin-bottom: 9px; }
+.fcol__title { margin-bottom: 14px; font-size: 16px; font-weight: 700; }
+.fcol--links .fcol__title { color: var(--platinum); }
+.fcol--network .fcol__title { color: var(--platinum-light); }
+
+.flinks { display: flex; gap: 10px; }
+.flinks ul { width: 173px; }
+.fcol--links li, .fcol--network li { line-height: 2; }
 .fcol--links a, .fcol--network a { transition: color .16s ease; }
 .fcol--links a:hover, .fcol--network a:hover { color: var(--white); }
 
-.site-footer__legal { border-top: 1px solid rgba(255, 255, 255, .07); }
-.site-footer__legal-inner {
+.site-footer__legal {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-  padding-block: 18px;
+  gap: 8px;
+  padding-top: 24px;
+  text-align: center;
 }
-.flegal { display: flex; gap: 18px; flex-wrap: wrap; font-size: 12px; }
+.flegal { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; font-size: 14px; }
 .flegal a:hover { color: var(--white); }
-.fcopy { font-size: 12px; color: var(--charcoal-light); }
+.fcopy { font-size: 14px; }
 
 /* --------------------------------------------------------------------------
    13. Responsive
@@ -1062,8 +1030,8 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
   .play__body { grid-template-columns: 1fr; gap: 40px; }
   .showcase { min-height: 0; max-width: 588px; }
   .tnc { grid-template-columns: 1fr; gap: 32px; }
-  .site-footer__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-  .fcol--brand { grid-column: 1 / -1; }
+  .site-footer__row { flex-wrap: wrap; }
+  .fcol--brand { max-width: 100%; flex-basis: 100%; }
 }
 
 @media (max-width: 900px) {
@@ -1089,13 +1057,21 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
   .hero__or { display: none; }
   .hero__facts { flex-direction: column; }
   .fact__sep { display: none; }
-  .play__head { flex-direction: column; align-items: flex-start; gap: 18px; }
+  .play__head { flex-direction: column; align-items: center; gap: 18px; }
+  .play__head .section-title { text-align: center; }
   .switch { width: 100%; }
   .switch__btn { flex: 1; min-width: 0; }
+  /* Ganti list-langkah + showcase bersama dengan carousel per-tab (lihat §9b). */
+  .play__body { display: none; }
+  .steps-carousel:not([hidden]) { display: block; }
   .winners__grid { grid-template-columns: 1fr; }
-  .site-footer__grid { grid-template-columns: 1fr; gap: 32px; }
-  .flinks { gap: 16px; }
-  .site-footer__legal-inner { flex-direction: column; align-items: flex-start; }
+  .prize__title { text-align: center; }
+  .tnc__title { text-align: center; }
+  .site-footer__row { flex-direction: column; gap: 32px; }
+  .flinks { flex-wrap: wrap; gap: 16px 24px; }
+  .flinks ul { width: calc(50% - 12px); }
+  .site-footer__legal { align-items: flex-start; text-align: left; }
+  .flegal { justify-content: flex-start; gap: 14px 18px; }
 }
 
 /* --------------------------------------------------------------------------
@@ -1140,6 +1116,35 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
 
   /* Signature: dokumenter push-in yang sangat lambat & halus. */
   .hero__photo-img { animation: heroKenBurns 26s ease-in-out infinite alternate; }
+
+  /* Banner Hadiah: garis cahaya tipis & miring yang menyapu kiri→kanan, lalu
+     diam sampai siklus berikutnya (bukan berkilau terus-menerus).
+
+     Warnanya cream hangat (bukan putih) dan opacity rendah supaya menyatu dengan
+     gradient card yang sudah keemasan, bukan berkesan "sorotan lampu" yang
+     mencolok. Blur besar (28px) menghaluskan tepi jadi gradasi lembut, bukan
+     garis yang tegas.
+
+     Semua ukuran pakai persen supaya ikut ukuran kartu (beda antara desktop
+     1 baris lebar dan mobile yang bertumpuk 1 kolom).
+       left -70%             → mulai jauh di luar tepi kiri, cukup jarak supaya
+         sebaran blur & pergeseran akibat rotate tidak bocor lebih dulu.
+       width 16%              → tipis, kesan garis bukan bar tebal.
+       height 140% + top -20% → tetap menutup penuh tinggi kartu walau dimiringkan.
+     Urutan `translateX() rotate()` penting: translate dihitung di ruang kartu
+     (horizontal murni), rotate baru diterapkan pada garis itu sendiri. */
+  .prize::after {
+    content: '';
+    position: absolute;
+    top: -20%;
+    left: -70%;
+    width: 16%;
+    height: 140%;
+    background: rgba(255, 230, 176, .08);
+    filter: blur(28px);
+    animation: shimmerSweep 2.8s cubic-bezier(.45, 0, .55, 1) infinite;
+    pointer-events: none;
+  }
 }
 
 @keyframes heroKenBurns {
@@ -1147,16 +1152,24 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
   to   { transform: scale(1.07); }
 }
 
-/* Transisi antar-state untuk dua momen interaktif (ganti langkah Cara Main,
-   jawab kuis) — fade-through singkat lewat JS (lihat crossfade() di main.js)
-   supaya pergantian konten tidak terasa dipotong mendadak. */
+/* 1200% = 12 × lebar garis (16% kartu) = 1,92 × lebar kartu — jarak yang sama
+   dengan sebelumnya (waktu garisnya masih 40%), supaya tetap menyapu tuntas
+   dari luar tepi kiri sampai lewat sepenuhnya di tepi kanan meski garisnya
+   sekarang jauh lebih tipis. */
+@keyframes shimmerSweep {
+  0%   { transform: translateX(0)     rotate(20deg); }
+  55%  { transform: translateX(1200%) rotate(20deg); }
+  100% { transform: translateX(1200%) rotate(20deg); }
+}
+
+/* Transisi ganti langkah Cara Main — fade-through singkat lewat JS
+   (lihat crossfade() di main.js) supaya pergantian gambar tidak terasa
+   dipotong mendadak. */
 @media (prefers-reduced-motion: no-preference) {
-  .showcase__item,
-  .quiz__state {
+  .showcase__item {
     transition: opacity .18s ease;
   }
-  .showcase__item.is-swapping,
-  .quiz__state.is-swapping {
+  .showcase__item.is-swapping {
     opacity: 0;
   }
 }
