@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="tema-2">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -108,9 +108,21 @@
         </svg>
       </span>
     </a>
-    <button class="topbar__account" type="button" aria-label="Akun saya">
-      <svg width="28" height="28" aria-hidden="true"><use href="#i-user-circle"></use></svg>
-    </button>
+    <div class="topbar__right">
+      <!-- Preview manual kondisi section Pengumuman Pemenang — bukan bagian
+           dari Figma, kontrol fungsional untuk stakeholder review (lihat
+           styles.css §16 "Kondisi Pemenang" + initWinnersState di main.js).
+           Independen dari tema (Tema 1/2) yang sudah dilepas — ini soal
+           WAKTU kampanye (masih berjalan vs sudah ada pemenang), bukan
+           varian desain. -->
+      <div class="state-switch" role="group" aria-label="Preview kondisi Pengumuman Pemenang">
+        <button class="state-switch__btn" type="button" data-winners-btn="ongoing">Ongoing</button>
+        <button class="state-switch__btn" type="button" data-winners-btn="winner">Winner</button>
+      </div>
+      <button class="topbar__account" type="button" aria-label="Akun saya">
+        <svg width="28" height="28" aria-hidden="true"><use href="#i-user-circle"></use></svg>
+      </button>
+    </div>
   </div>
 </header>
 
@@ -119,12 +131,18 @@
 <!-- ============ HERO ============ -->
 <section class="hero" id="hero">
   <div class="hero__photo" aria-hidden="true">
-    <img class="hero__photo-img" src="assets/img/hero-bg.jpg" alt="" fetchpriority="high">
+    <!-- Tema 1 — dormant (Tema 2 sekarang permanen, lihat styles.css §16),
+         `lazy` supaya tidak ikut diunduh sia-sia karena tidak pernah tampil. -->
+    <img class="hero__photo-img hero__photo-img--tema-1" src="assets/img/hero-bg.jpg" alt="" loading="lazy">
+    <!-- Tema 2 (aktif) — komposit Figma 44:6649 (foto + kolase + mockup HP).
+         `fetchpriority="high"` karena ini gambar Hero yang benar-benar tampil
+         sejak awal, above-the-fold. -->
+    <img class="hero__photo-img hero__photo-img--tema-2" src="assets/img/hero-bg-tema2.jpg" alt="" fetchpriority="high">
   </div>
   <div class="hero__blend" aria-hidden="true"></div>
 
   <div class="hero__content">
-    <div class="hero__logo" data-optional-img data-reveal="scale">
+    <div class="hero__logo hero__logo--tema-1" data-optional-img data-reveal="scale">
       <img class="opt-img" src="assets/img/logo-dengar-stori.png" alt="Dengar Stori" width="166" height="148">
       <span class="hero__wordmark opt-fallback" aria-hidden="true">
         <span class="hero__wordmark-top">Dengar</span>
@@ -133,12 +151,19 @@
     </div>
 
     <div class="hero__body">
-      <div class="hero__copy">
+      <!-- Tema 1 (default) — lihat styles.css §16 untuk mekanisme toggle-nya. -->
+      <div class="hero__copy hero__copy--tema-1">
         <h1 class="hero__title" data-reveal="up" data-reveal-delay="1">Rayakan <span class="u-accent">Kemerdekaan</span> Dengan Kuis Seru Berhadiah</h1>
         <p class="hero__lead" data-reveal="up" data-reveal-delay="2">Setiap cerita menyimpan petunjuk. Ikuti seri Dengar Stori melalui Instagram atau Mediopods, temukan jawabannya di artikel pilihan, lalu buktikan pengetahuanmu dan menangkan hadiah menarik.</p>
       </div>
+      <!-- Tema 2 — Figma node 44:6649. Disembunyikan lewat CSS sampai
+           data-theme="tema-2" aktif. -->
+      <div class="hero__copy hero__copy--tema-2">
+        <h1 class="hero__title" data-reveal="up" data-reveal-delay="1">Dengar Podcastnya, Dapatkan <span class="hero__highlight">Hadiahnya</span></h1>
+        <p class="hero__lead" data-reveal="up" data-reveal-delay="2"><strong class="hero__lead-accent">Rayakan kemerdekaanmu</strong> dengan podcast Dengar Stori. Setiap episode membawa cerita dan petunjuk baru. Ikuti semua episodenya dan dapatkan hadiah menarik setiap harinya.</p>
+      </div>
 
-      <div class="hero__actions" data-reveal="up" data-reveal-delay="3">
+      <div class="hero__actions hero__actions--tema-1" data-reveal="up" data-reveal-delay="3">
         <a class="btn btn--primary" data-link="instagram" href="#" target="_blank" rel="noopener">
           <svg class="btn__icon" aria-hidden="true"><use href="#i-instagram"></use></svg>
           Kunjungi Instastory
@@ -149,9 +174,17 @@
           Dengarkan Mediopods
         </a>
       </div>
+      <!-- Tema 2 — Figma 44:6661: satu tombol saja (tanpa "atau"/Instastory). -->
+      <div class="hero__actions hero__actions--tema-2" data-reveal="up" data-reveal-delay="3">
+        <a class="btn btn--primary" data-link="mediopods" href="#" target="_blank" rel="noopener">
+          <svg class="btn__icon" aria-hidden="true"><use href="#i-headphones"></use></svg>
+          Dengarkan Podcast
+        </a>
+      </div>
     </div>
 
-    <dl class="hero__facts" data-reveal="up" data-reveal-delay="4">
+    <!-- Tema 1 (default) — 3 fact: Periode, Pemenang, Total Hadiah. -->
+    <dl class="hero__facts hero__facts--tema-1" data-reveal="up" data-reveal-delay="4">
       <div class="fact">
         <dt class="fact__label"><svg class="fact__icon" aria-hidden="true"><use href="#i-calendar-dots-fill"></use></svg>Periode</dt>
         <dd class="fact__value">12&nbsp;–&nbsp;17 Agustus 2026</dd>
@@ -167,6 +200,54 @@
         <dd class="fact__value">Rp2.000.000</dd>
       </div>
     </dl>
+    <!-- Tema 2 — Figma 44:6662: 2 fact (Periode + Pemenang, tanpa Total Hadiah),
+         ikonnya dalam badge bundar di kiri, label/nilai rata kiri. -->
+    <dl class="hero__facts hero__facts--tema-2" data-reveal="up" data-reveal-delay="4">
+      <div class="fact">
+        <dt class="fact__label">
+          <span class="fact__badge" aria-hidden="true"><svg class="fact__icon"><use href="#i-calendar-dots-fill"></use></svg></span>
+          Periode
+        </dt>
+        <dd class="fact__value">12&nbsp;–&nbsp;17 Agustus 2026</dd>
+      </div>
+      <span class="fact__sep" aria-hidden="true"></span>
+      <div class="fact">
+        <dt class="fact__label">
+          <span class="fact__badge" aria-hidden="true"><svg class="fact__icon"><use href="#i-users-four-fill"></use></svg></span>
+          Pemenang
+        </dt>
+        <dd class="fact__value">4 Orang Setiap Harinya</dd>
+      </div>
+    </dl>
+
+    <!-- Tema 2 — Figma 65:5494. Dihitung mundur ke CAMPAIGN.startAt lewat
+         initCountdown() di main.js §7; dipadding 2 digit (kecuali hari) untuk
+         Jam/Menit/Detik supaya lebar kotak tidak "loncat" tiap detik — Figma
+         cuma menunjukkan nilai sesaat (5/10/3/31), bukan aturan padding. -->
+    <div class="countdown countdown--tema-2" data-countdown-target="startAt" data-reveal="up" data-reveal-delay="5">
+      <p class="countdown__label">Dimulai dalam</p>
+      <div class="countdown__boxes">
+        <div class="countdown__box">
+          <span class="countdown__value" data-countdown="days">0</span>
+          <span class="countdown__unit">Hari</span>
+        </div>
+        <span class="countdown__sep" aria-hidden="true">:</span>
+        <div class="countdown__box">
+          <span class="countdown__value" data-countdown="hours">00</span>
+          <span class="countdown__unit">Jam</span>
+        </div>
+        <span class="countdown__sep" aria-hidden="true">:</span>
+        <div class="countdown__box">
+          <span class="countdown__value" data-countdown="minutes">00</span>
+          <span class="countdown__unit">Menit</span>
+        </div>
+        <span class="countdown__sep" aria-hidden="true">:</span>
+        <div class="countdown__box">
+          <span class="countdown__value" data-countdown="seconds">00</span>
+          <span class="countdown__unit">Detik</span>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -180,25 +261,44 @@
     <article class="prize">
       <div class="prize__glow" aria-hidden="true"></div>
 
-      <div class="prize__media" data-optional-img data-reveal="scale">
-        <img class="opt-img" src="assets/img/hadiah-podium.png" alt="Podium hadiah dengan piala, kotak hadiah, dan bendera Merah Putih" width="333" height="222">
+      <!-- Tema 1 — dormant (Tema 2 sekarang permanen, lihat styles.css §16).
+           `lazy` supaya tidak ikut diunduh sia-sia karena tidak pernah tampil. -->
+      <div class="prize__media prize__media--tema-1" data-optional-img data-reveal="scale">
+        <img class="opt-img" src="assets/img/hadiah-podium.png" alt="Podium hadiah dengan piala, kotak hadiah, dan bendera Merah Putih" width="333" height="222" loading="lazy">
         <span class="prize__placeholder opt-fallback" aria-hidden="true">
           <svg width="56" height="56" aria-hidden="true"><use href="#i-gift"></use></svg>
         </span>
       </div>
-      <div class="prize__copy" data-reveal="up" data-reveal-delay="1">
-        <h2 class="prize__title">Menangkan hadiah menarik <span class="u-accent">Rp2.000.000 untuk 4 orang pemenang</span></h2>
+      <!-- Tema 2 — Figma 57:2524: tumpukan kartu notifikasi GoPay. Satu PNG
+           transparan (bukan disusun dari elemen HTML) supaya bayangan berlapis
+           dan ikon GoPay-nya persis seperti Figma. -->
+      <div class="prize__media prize__media--tema-2" data-reveal="scale">
+        <img src="assets/img/hadiah-gopay.png" alt="Notifikasi: Ada Saldo Masuk! Kamu baru saja menerima saldo sebesar Rp 50.000" width="357" height="181" loading="lazy">
+      </div>
+
+      <div class="prize__copy prize__copy--tema-1" data-reveal="up" data-reveal-delay="1">
+        <h2 class="prize__title">Menangkan hadiah menarik <span class="u-accent">Rp50.000 untuk 4 orang pemenang setiap harinya</span></h2>
         <ul class="prize__list">
-          <li>Cukup dengan mengikuti rangkaian Kuis Spesial Kemerdekaan dari Kompas.com selama periode berlangsung.</li>
+          <li>Cukup dengan nikmati konten Dengar Stori melalui instagram @kompascom atau Podcast di Kompas.com, lalu jawab kuisnya.</li>
           <li>Semakin konsisten kamu mengikuti dan menjawab kuis, semakin besar peluangmu menjadi salah satu dari empat pemenang.</li>
         </ul>
         <p class="prize__cta">AYO TUNGGU APA LAGI!!</p>
+      </div>
+      <!-- Tema 2 — Figma 57:2461. Copy podcast-only, dan TANPA baris
+           "AYO TUNGGU APA LAGI!!" (tidak ada di node ini). -->
+      <div class="prize__copy prize__copy--tema-2" data-reveal="up" data-reveal-delay="1">
+        <h2 class="prize__title">Menangkan hadiah menarik <span class="u-accent">GoPay Rp50.000 untuk 4 orang pemenang setiap harinya</span></h2>
+        <ul class="prize__list">
+          <li>Cukup dengan dengarkan Podcast Dengar Stori di Kompas.com, lalu jawab kuisnya.</li>
+          <li>Semakin konsisten kamu mendengarkan dan menjawab kuis, semakin besar peluangmu menjadi salah satu dari empat pemenang.</li>
+        </ul>
       </div>
     </article>
 
     <!-- Cara main -->
     <div class="play" id="cara-main">
-      <div class="play__head">
+      <!-- Tema 1 (default) — lihat styles.css §16 untuk mekanisme toggle-nya. -->
+      <div class="play__head play__head--tema-1">
         <h2 class="section-title" data-reveal="up"><span class="u-accent">Bagaimana</span> Cara Mainnya&nbsp;?</h2>
 
         <div class="switch" role="tablist" aria-label="Pilih cara mengikuti kuis" data-reveal="up" data-reveal-delay="1">
@@ -206,8 +306,12 @@
           <button class="switch__btn" role="tab" id="tab-mediopods" aria-selected="false" aria-controls="panel-mediopods" tabindex="-1" type="button">Mediopods</button>
         </div>
       </div>
+      <!-- Tema 2 — fokus 1 metode (Podcast), switcher tab tidak dibutuhkan lagi. -->
+      <div class="play__head play__head--tema-2">
+        <h2 class="section-title" data-reveal="up"><span class="u-accent">Bagaimana</span> Cara Mainnya&nbsp;?</h2>
+      </div>
 
-      <div class="play__body">
+      <div class="play__body play__body--tema-1">
         <!-- Panel: Instastory. Tiap langkah bisa diklik untuk mengganti visual di kanan. -->
         <ol class="steps" role="tabpanel" id="panel-instastory" aria-labelledby="tab-instastory" tabindex="0">
           <li>
@@ -399,12 +503,94 @@
         </div>
       </div>
 
+      <!-- Tema 2 — Figma-nya cuma 1 metode (Podcast): 3 langkah, tanpa tab.
+           Panel/showcase-nya TIDAK pernah diberi atribut `hidden` sendiri —
+           yang di-toggle lewat CSS §16 (berbasis data-theme) adalah wrapper
+           `.play__body--tema-2` ini, jadi cukup satu tempat, konsisten dengan
+           pola Hero & Banner Hadiah. -->
+      <div class="play__body play__body--tema-2">
+        <ol class="steps" role="list" id="panel-podcast">
+          <li>
+            <button class="step is-active" type="button" data-step="1" aria-current="step" aria-controls="showcase-podcast" data-reveal="scale" data-reveal-delay="0">
+              <span class="step__num" aria-hidden="true">1</span>
+              <span class="step__copy">
+                <span class="step__title">Masuk ke Podcast Kompas.com atau masuk melalui notifikasi</span>
+                <span class="step__text">Pertama-tama kamu bisa akses website Kompas.com terlebih dahulu dan klik menu Podcast, atau kamu bisa masuk melalui notifikasi yang diterima.</span>
+              </span>
+            </button>
+          </li>
+          <li>
+            <button class="step" type="button" data-step="2" aria-controls="showcase-podcast" data-reveal="scale" data-reveal-delay="1">
+              <span class="step__num" aria-hidden="true">2</span>
+              <span class="step__copy">
+                <span class="step__title">Dengarkan Podcast Dengar Stori</span>
+                <span class="step__text">Kamu bisa dengarkan audio podcastnya terlebih dahulu, kemudian silahkan ikuti kuisnya.</span>
+              </span>
+            </button>
+          </li>
+          <li>
+            <button class="step" type="button" data-step="3" aria-controls="showcase-podcast" data-reveal="scale" data-reveal-delay="2">
+              <span class="step__num" aria-hidden="true">3</span>
+              <span class="step__copy">
+                <span class="step__title">Jawab kuis di artikel</span>
+                <span class="step__text">Kamu akan masuk ke halaman artikel dan bisa menjawab soal kuis untuk mendapatkan hadiah.</span>
+              </span>
+            </button>
+          </li>
+        </ol>
+
+        <!-- Visual kanan: Podcast — berganti mengikuti langkah yang dipilih -->
+        <div class="showcase" id="showcase-podcast" data-reveal="scale" data-reveal-delay="3">
+
+          <figure class="showcase__item" data-showcase-step="1" data-optional-img>
+            <img class="opt-img" src="assets/img/cara-main-podcast-1.jpg" alt="Halaman Kompas.com dengan menu Podcast disorot, dan notifikasi mengikuti kuis Dengar Stori lewat podcast">
+            <div class="showcase__ph opt-fallback">
+              <svg class="showcase__ph-icon" aria-hidden="true"><use href="#i-headphones"></use></svg>
+              <p class="showcase__ph-title">Podcast di Kompas.com</p>
+              <p class="showcase__ph-note">Slot gambar langkah 1 — <code>assets/img/cara-main-podcast-1.jpg</code></p>
+            </div>
+          </figure>
+
+          <figure class="showcase__item" data-showcase-step="2" data-optional-img hidden>
+            <img class="opt-img" src="assets/img/cara-main-podcast-2.jpg" alt="Pemutar Podcast Dengar Stori — episode Dengar Stori: Rengasdengklok dan Detik-Detik Proklamasi">
+            <div class="showcase__ph opt-fallback">
+              <svg class="showcase__ph-icon" aria-hidden="true"><use href="#i-headphones"></use></svg>
+              <p class="showcase__ph-title">Podcast Dengar Stori</p>
+              <p class="showcase__ph-note">Slot gambar langkah 2 — <code>assets/img/cara-main-podcast-2.jpg</code></p>
+            </div>
+          </figure>
+
+          <figure class="showcase__item" data-showcase-step="3" data-optional-img hidden>
+            <img class="opt-img" src="assets/img/cara-main-podcast-3.jpg" alt="Soal kuis pilihan ganda di artikel Kompas.com, dengan info 4 pemenang setiap harinya mendapatkan GoPay Rp50.000">
+            <div class="showcase__ph opt-fallback">
+              <svg class="showcase__ph-icon" aria-hidden="true"><use href="#i-check"></use></svg>
+              <p class="showcase__ph-title">Kuis di artikel</p>
+              <p class="showcase__ph-note">Slot gambar langkah 3 — <code>assets/img/cara-main-podcast-3.jpg</code></p>
+            </div>
+          </figure>
+
+          <button class="showcase__nav showcase__nav--prev" type="button" data-showcase-nav="prev" aria-label="Langkah sebelumnya">
+            <svg width="20" height="20" aria-hidden="true"><use href="#i-chevron-left"></use></svg>
+          </button>
+          <button class="showcase__nav showcase__nav--next" type="button" data-showcase-nav="next" aria-label="Langkah berikutnya">
+            <svg width="20" height="20" aria-hidden="true"><use href="#i-chevron-right"></use></svg>
+          </button>
+
+          <div class="showcase__dots" aria-hidden="true">
+            <span class="showcase__dot is-active" data-showcase-dot></span>
+            <span class="showcase__dot" data-showcase-dot></span>
+            <span class="showcase__dot" data-showcase-dot></span>
+          </div>
+
+        </div>
+      </div>
+
       <!-- Carousel mobile: satu per tab (gambar dulu, lalu judul + deskripsi di bawah).
            Geser otomatis tiap 5 detik, atau geser manual (swipe / drag / titik halaman).
            Kontennya sengaja diduplikasi dari .steps di atas (bukan digenerate JS) —
            konsisten dengan pola panel Instastory/Mediopods yang sudah lebih dulu ada
            di file ini. Kalau copy langkah di atas diubah, samakan juga di sini. -->
-      <div class="steps-carousel" id="carousel-instastory" data-carousel aria-roledescription="carousel" aria-label="Cara main lewat Instastory">
+      <div class="steps-carousel steps-carousel--tema-1" id="carousel-instastory" data-carousel aria-roledescription="carousel" aria-label="Cara main lewat Instastory">
         <ul class="steps-carousel__track" data-carousel-track>
           <li class="steps-carousel__slide" data-carousel-slide>
             <img class="steps-carousel__img" src="assets/img/cara-main-1.jpg" alt="Halaman profil Instagram @kompascom" loading="lazy">
@@ -442,7 +628,7 @@
         <div class="steps-carousel__dots" data-carousel-dots aria-label="Pilih langkah"></div>
       </div>
 
-      <div class="steps-carousel" id="carousel-mediopods" data-carousel aria-roledescription="carousel" aria-label="Cara main lewat Mediopods" hidden>
+      <div class="steps-carousel steps-carousel--tema-1" id="carousel-mediopods" data-carousel aria-roledescription="carousel" aria-label="Cara main lewat Mediopods" hidden>
         <ul class="steps-carousel__track" data-carousel-track>
           <li class="steps-carousel__slide" data-carousel-slide>
             <img class="steps-carousel__img" src="assets/img/cara-main-mediopods-1.jpg" alt="Ikon Mediopods pada Homepage Kompas.com" loading="lazy">
@@ -479,47 +665,220 @@
         </ul>
         <div class="steps-carousel__dots" data-carousel-dots aria-label="Pilih langkah"></div>
       </div>
+
+      <!-- Tema 2 — mobile, 3 slide, tanpa tab. -->
+      <div class="steps-carousel steps-carousel--tema-2" id="carousel-podcast" data-carousel aria-roledescription="carousel" aria-label="Cara main lewat Podcast">
+        <ul class="steps-carousel__track" data-carousel-track>
+          <li class="steps-carousel__slide" data-carousel-slide>
+            <img class="steps-carousel__img" src="assets/img/cara-main-podcast-1.jpg" alt="Halaman Kompas.com dengan menu Podcast disorot, dan notifikasi mengikuti kuis Dengar Stori lewat podcast" loading="lazy">
+            <div class="steps-carousel__copy">
+              <span class="steps-carousel__num" aria-hidden="true">1</span>
+              <h3 class="steps-carousel__title">Masuk ke Podcast Kompas.com atau masuk melalui notifikasi</h3>
+              <p class="steps-carousel__text">Pertama-tama kamu bisa akses website Kompas.com terlebih dahulu dan klik menu Podcast, atau kamu bisa masuk melalui notifikasi yang diterima.</p>
+            </div>
+          </li>
+          <li class="steps-carousel__slide" data-carousel-slide>
+            <img class="steps-carousel__img" src="assets/img/cara-main-podcast-2.jpg" alt="Pemutar Podcast Dengar Stori — episode Dengar Stori: Rengasdengklok dan Detik-Detik Proklamasi" loading="lazy">
+            <div class="steps-carousel__copy">
+              <span class="steps-carousel__num" aria-hidden="true">2</span>
+              <h3 class="steps-carousel__title">Dengarkan Podcast Dengar Stori</h3>
+              <p class="steps-carousel__text">Kamu bisa dengarkan audio podcastnya terlebih dahulu, kemudian silahkan ikuti kuisnya.</p>
+            </div>
+          </li>
+          <li class="steps-carousel__slide" data-carousel-slide>
+            <img class="steps-carousel__img" src="assets/img/cara-main-podcast-3.jpg" alt="Soal kuis pilihan ganda di artikel Kompas.com, dengan info 4 pemenang setiap harinya mendapatkan GoPay Rp50.000" loading="lazy">
+            <div class="steps-carousel__copy">
+              <span class="steps-carousel__num" aria-hidden="true">3</span>
+              <h3 class="steps-carousel__title">Jawab kuis di artikel</h3>
+              <p class="steps-carousel__text">Kamu akan masuk ke halaman artikel dan bisa menjawab soal kuis untuk mendapatkan hadiah.</p>
+            </div>
+          </li>
+        </ul>
+        <div class="steps-carousel__dots" data-carousel-dots aria-label="Pilih langkah"></div>
+      </div>
     </div>
 
   </div>
 </section>
 
-<!-- ============ PENGUMUMAN PEMENANG (muncul di akhir periode) ============ -->
-<section class="slab slab--winners" id="pemenang" data-winners hidden>
+<!-- ============ PENGUMUMAN PEMENANG ============ -->
+<!-- 2 kondisi (Figma file "Backup Kuis 17an", BbdQ2sSITixKR7raGXSOw5):
+     "Ongoing" node 23:13634 (kampanye masih berjalan, daftar pemenang belum
+     ada) dan "Winner" node 23:12296 (daftar pemenang sudah tersedia).
+     Ditoggle lewat data-winners-state — lihat initWinnersState di main.js
+     (default-nya mengikuti tanggal CAMPAIGN.winnersAnnouncedAt, sama seperti
+     gating lama, tapi sekarang bisa di-override manual lewat tombol
+     Ongoing/Winner di navbar untuk keperluan preview). -->
+<section class="slab slab--winners" id="pemenang" data-winners data-winners-state="ongoing">
   <div class="slab__bg" aria-hidden="true"></div>
 
   <div class="container">
-    <div class="winners">
-      <header class="winners__head" data-reveal="up">
-        <p class="winners__eyebrow">Selamat kepada para Pemenang</p>
-        <h2 class="winners__title">Empat Nama, Satu Cerita Kemerdekaan</h2>
-      </header>
 
-      <ol class="winners__grid">
-        <li class="winner" data-reveal="scale" data-reveal-delay="0">
-          <p class="winner__rank">Pemenang 1</p>
-          <p class="winner__id">agus***wati09@gmail.com</p>
-        </li>
-        <li class="winner" data-reveal="scale" data-reveal-delay="1">
-          <p class="winner__rank">Pemenang 2</p>
-          <p class="winner__id">agus***wati09@gmail.com</p>
-        </li>
-        <li class="winner" data-reveal="scale" data-reveal-delay="2">
-          <p class="winner__rank">Pemenang 3</p>
-          <p class="winner__id">agus***wati09@gmail.com</p>
-        </li>
-        <li class="winner" data-reveal="scale" data-reveal-delay="3">
-          <p class="winner__rank">Pemenang 4</p>
-          <p class="winner__id">agus***wati09@gmail.com</p>
-        </li>
-      </ol>
+    <!-- Kondisi "Ongoing" — Figma 23:13634. Kartu tanggal berisi skeleton
+         placeholder (bukan nama pemenang beneran) + countdown menuju
+         CAMPAIGN.winnersAnnouncedAt. -->
+    <div class="winners winners--ongoing">
+      <div class="winners__intro">
+        <header class="winners__head" data-reveal="up">
+          <p class="winners__eyebrow">Nantikan Daftar Pemenang Disini</p>
+          <h2 class="winners__title">Ingin menjadi salah satu dari para pemenang?</h2>
+        </header>
+        <p class="winners__lead" data-reveal="up" data-reveal-delay="1">Yuk ikutan dengerin podcast spesial kemerdekaan Dengar Stori, dapatkan hadiah menarik dan jadilah salah satu pemenang</p>
+      </div>
 
-      <p class="winners__note" data-reveal="fade" data-reveal-delay="4">
+      <div class="winners__days">
+        <div class="winners__days-row">
+          <div class="winner-day" data-reveal="scale" data-reveal-delay="0">
+            <p class="winner-day__date">12 Agustus 2026</p>
+            <div class="winner-day__skeleton" aria-hidden="true">
+              <span class="winner-day__bar"></span>
+              <span class="winner-day__bar" style="width:54%"></span>
+              <span class="winner-day__bar" style="width:73%"></span>
+              <span class="winner-day__bar" style="width:85%"></span>
+            </div>
+          </div>
+          <div class="winner-day" data-reveal="scale" data-reveal-delay="1">
+            <p class="winner-day__date">13 Agustus 2026</p>
+            <div class="winner-day__skeleton" aria-hidden="true">
+              <span class="winner-day__bar"></span>
+              <span class="winner-day__bar" style="width:54%"></span>
+              <span class="winner-day__bar" style="width:73%"></span>
+              <span class="winner-day__bar" style="width:85%"></span>
+            </div>
+          </div>
+          <div class="winner-day" data-reveal="scale" data-reveal-delay="2">
+            <p class="winner-day__date">14 Agustus 2026</p>
+            <div class="winner-day__skeleton" aria-hidden="true">
+              <span class="winner-day__bar"></span>
+              <span class="winner-day__bar" style="width:54%"></span>
+              <span class="winner-day__bar" style="width:73%"></span>
+              <span class="winner-day__bar" style="width:85%"></span>
+            </div>
+          </div>
+          <div class="winner-day" data-reveal="scale" data-reveal-delay="3">
+            <p class="winner-day__date">15 Agustus 2026</p>
+            <div class="winner-day__skeleton" aria-hidden="true">
+              <span class="winner-day__bar"></span>
+              <span class="winner-day__bar" style="width:54%"></span>
+              <span class="winner-day__bar" style="width:73%"></span>
+              <span class="winner-day__bar" style="width:85%"></span>
+            </div>
+          </div>
+        </div>
+        <div class="winners__days-row winners__days-row--pair">
+          <div class="winner-day" data-reveal="scale" data-reveal-delay="4">
+            <p class="winner-day__date">16 Agustus 2026</p>
+            <div class="winner-day__skeleton" aria-hidden="true">
+              <span class="winner-day__bar"></span>
+              <span class="winner-day__bar" style="width:54%"></span>
+              <span class="winner-day__bar" style="width:73%"></span>
+              <span class="winner-day__bar" style="width:85%"></span>
+            </div>
+          </div>
+          <div class="winner-day" data-reveal="scale" data-reveal-delay="5">
+            <p class="winner-day__date">17 Agustus 2026</p>
+            <div class="winner-day__skeleton" aria-hidden="true">
+              <span class="winner-day__bar"></span>
+              <span class="winner-day__bar" style="width:54%"></span>
+              <span class="winner-day__bar" style="width:73%"></span>
+              <span class="winner-day__bar" style="width:85%"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="countdown winners__countdown" data-countdown-target="winnersAnnouncedAt" data-reveal="up" data-reveal-delay="6">
+        <p class="countdown__label">Akan diumumkan dalam</p>
+        <div class="countdown__boxes">
+          <div class="countdown__box">
+            <span class="countdown__value" data-countdown="days">0</span>
+            <span class="countdown__unit">Hari</span>
+          </div>
+          <span class="countdown__sep" aria-hidden="true">:</span>
+          <div class="countdown__box">
+            <span class="countdown__value" data-countdown="hours">00</span>
+            <span class="countdown__unit">Jam</span>
+          </div>
+          <span class="countdown__sep" aria-hidden="true">:</span>
+          <div class="countdown__box">
+            <span class="countdown__value" data-countdown="minutes">00</span>
+            <span class="countdown__unit">Menit</span>
+          </div>
+          <span class="countdown__sep" aria-hidden="true">:</span>
+          <div class="countdown__box">
+            <span class="countdown__value" data-countdown="seconds">00</span>
+            <span class="countdown__unit">Detik</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kondisi "Winner" — Figma 23:12296. Kartu tanggal berisi 4 pemenang
+         (email tersamar) per hari. -->
+    <div class="winners winners--winner">
+      <div class="winners__intro">
+        <header class="winners__head" data-reveal="up">
+          <p class="winners__eyebrow">Selamat kepada para Pemenang</p>
+          <h2 class="winners__title">Mendapatkan Saldo GoPay Sebesar Rp50.000</h2>
+        </header>
+      </div>
+
+      <div class="winners__days">
+        <div class="winners__days-row">
+          <div class="winner-day" data-reveal="scale" data-reveal-delay="0">
+            <p class="winner-day__date">12 Agustus 2026</p>
+            <p class="winner-day__email">agus***wati09@gmail.com</p>
+            <p class="winner-day__email">agus***wati09@gmail.com</p>
+            <p class="winner-day__email">agus***wati09@gmail.com</p>
+            <p class="winner-day__email">agus***wati09@gmail.com</p>
+          </div>
+          <div class="winner-day" data-reveal="scale" data-reveal-delay="1">
+            <p class="winner-day__date">13 Agustus 2026</p>
+            <p class="winner-day__email">agus***wati09@gmail.com</p>
+            <p class="winner-day__email">agus***wati09@gmail.com</p>
+            <p class="winner-day__email">agus***wati09@gmail.com</p>
+            <p class="winner-day__email">agus***wati09@gmail.com</p>
+          </div>
+          <div class="winner-day" data-reveal="scale" data-reveal-delay="2">
+            <p class="winner-day__date">14 Agustus 2026</p>
+            <p class="winner-day__email">agus***wati09@gmail.com</p>
+            <p class="winner-day__email">agus***wati09@gmail.com</p>
+            <p class="winner-day__email">agus***wati09@gmail.com</p>
+            <p class="winner-day__email">agus***wati09@gmail.com</p>
+          </div>
+          <div class="winner-day" data-reveal="scale" data-reveal-delay="3">
+            <p class="winner-day__date">15 Agustus 2026</p>
+            <p class="winner-day__email">agus***wati09@gmail.com</p>
+            <p class="winner-day__email">agus***wati09@gmail.com</p>
+            <p class="winner-day__email">agus***wati09@gmail.com</p>
+            <p class="winner-day__email">agus***wati09@gmail.com</p>
+          </div>
+        </div>
+        <div class="winners__days-row winners__days-row--pair">
+          <div class="winner-day" data-reveal="scale" data-reveal-delay="4">
+            <p class="winner-day__date">16 Agustus 2026</p>
+            <p class="winner-day__email">agus***wati09@gmail.com</p>
+            <p class="winner-day__email">agus***wati09@gmail.com</p>
+            <p class="winner-day__email">agus***wati09@gmail.com</p>
+            <p class="winner-day__email">agus***wati09@gmail.com</p>
+          </div>
+          <div class="winner-day" data-reveal="scale" data-reveal-delay="5">
+            <p class="winner-day__date">17 Agustus 2026</p>
+            <p class="winner-day__email">agus***wati09@gmail.com</p>
+            <p class="winner-day__email">agus***wati09@gmail.com</p>
+            <p class="winner-day__email">agus***wati09@gmail.com</p>
+            <p class="winner-day__email">agus***wati09@gmail.com</p>
+          </div>
+        </div>
+      </div>
+
+      <p class="winners__note" data-reveal="fade" data-reveal-delay="6">
         Pemenang akan mendapat email konfirmasi dari Kompas.com.
         <br>
         Setelah itu, kirimkan screenshot postingan Instagram &amp; email konfirmasi ke WhatsApp 085117357848 untuk verifikasi hadiah &amp; akun GoPay.
       </p>
     </div>
+
   </div>
 </section>
 

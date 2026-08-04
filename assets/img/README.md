@@ -7,18 +7,23 @@ dipakai dan fallback-nya hilang — tanpa perlu mengubah kode.
 
 | Nama file                | Ukuran          | Dipakai di                        | Node Figma  | Status |
 | ------------------------ | --------------- | --------------------------------- | ----------- | ------ |
-| `hero-bg.jpg`            | 1440 × 740      | Latar foto Hero                   | `343:1313`  | ✅ terpasang |
+| `hero-bg.jpg`            | 1440 × 740      | Latar foto Hero — **Tema 1**      | `343:1313`  | ✅ terpasang |
+| `hero-bg-tema2.jpg`      | 2880 × 1480 (2×) | Latar foto Hero — **Tema 2** (foto + kolase + mockup HP, komposit) | `44:6649` (file `Wpib0…`) | ✅ terpasang |
 | `section2-bg.jpg`        | 1440 × 907      | Latar bawah Section 2             | `343:4435`  | ✅ terpasang |
 | `winners-map.png`        | 1440 × 431      | Latar peta titik-titik Pengumuman Pemenang | `335:2291` | ✅ terpasang |
 | `logo-dengar-stori.png`  | 166 × 148       | Logo "Dengar Stori" di Hero       | `335:69`    | ✅ terpasang |
-| `hadiah-podium.png`      | 333 × 222       | Foto podium hadiah (transparan) di kartu "Menangkan Hadiah" | `362:1834` | ✅ terpasang |
+| `hadiah-podium.png`      | 333 × 222       | Foto podium hadiah (transparan) di kartu "Menangkan Hadiah" — **Tema 1** | `362:1834` | ✅ terpasang |
+| `hadiah-gopay.png`       | 1071 × 543 (3×) | Tumpukan kartu notifikasi GoPay di kartu "Menangkan Hadiah" — **Tema 2** | `57:2524` (file `Wpib0…`) | ✅ terpasang |
 | `cara-main-1.jpg`        | 1100 × 1100     | Visual langkah 1, tab **Instastory** | —        | ✅ terpasang |
 | `cara-main-2.jpg`        | 1100 × 1100     | Visual langkah 2, tab **Instastory** | —        | ✅ terpasang |
 | `cara-main-3.jpg`        | 1100 × 1100     | Visual langkah 3, tab **Instastory** | —        | ✅ terpasang |
 | `cara-main-mediopods-1.jpg` | 1100 × 1100  | Visual langkah 1, tab **Mediopods**  | —        | ✅ terpasang |
 | `cara-main-mediopods-2.jpg` | 1100 × 1100  | Visual langkah 2, tab **Mediopods**  | —        | ✅ terpasang |
 | `cara-main-mediopods-3.jpg` | 1100 × 1100  | Visual langkah 3, tab **Mediopods**  | —        | ✅ terpasang |
-| `cara-main-4.jpg`        | 1100 × 1100     | Visual langkah 4 — **dipakai bersama** kedua tab | — | ✅ terpasang |
+| `cara-main-4.jpg`        | 1100 × 1100     | Visual langkah 4, **Tema 1** (dipakai bersama Instastory & Mediopods) | — | ✅ terpasang |
+| `cara-main-podcast-1.jpg` | 1100 × 1100    | Visual langkah 1, **Tema 2** (podcast-only) | — | ✅ terpasang |
+| `cara-main-podcast-2.jpg` | 1100 × 1100    | Visual langkah 2, **Tema 2** | — | ✅ terpasang |
+| `cara-main-podcast-3.jpg` | 1100 × 1100    | Visual langkah 3, **Tema 2** | — | ✅ terpasang |
 | `footer-logo.png`        | 275 × 55        | Logo Kompas.com di footer          | `1:405` (file `Wpib0…`) | ✅ terpasang |
 | `footer-store-appstore.png` | 196 × 66     | Badge "Download di App Store"     | `1:436`     | ✅ terpasang |
 | `footer-store-googleplay.png` | 222 × 66   | Badge "Temukan di Google Play"    | `1:437`     | ✅ terpasang |
@@ -57,6 +62,152 @@ opacity perlu dikembalikan ke CSS agar teks tetap terbaca.
 
 Transisi ke Section 2 **bukan** dari gambar ini, tapi dari `.hero__blend` — ellipse
 `#1C1A16` ber-blur (Figma "Ellipse 3", node `343:1315`) yang di-CSS murni, tanpa aset.
+
+**`hero-bg-tema2.jpg`** — latar Hero versi **Tema 2** (Figma `16:4171`, file
+`BbdQ2sSITixKR7raGXSOw5` "Backup Kuis 17an").
+
+Sama seperti `hero-bg.jpg`, yang dipakai di HTML adalah **satu file komposit
+flattened** — foto massa "INDONESIA MERDEKA", kolase Proklamasi/bendera,
+gradient veil, dan mockup HP pemutar podcast semuanya ter-bake jadi satu.
+Dipasang dengan treatment identik (`object-fit: cover`,
+`object-position: center bottom`), jadi perilaku responsifnya persis sama
+dengan Tema 1.
+
+Ukurannya **2× (2880×1620)**, bukan 1×. Versi 1× pernah dicoba demi konsistensi
+dengan Tema 1, tapi teks UI di dalam mockup HP-nya kelihatan blur di layar
+high-DPI. Sekitar **275 KB** — masih lebih kecil dari `hero-bg.jpg` (451 KB @1×)
+karena separuh kiri gambarnya nyaris rata gelap.
+
+> **Rasio 2880×1620 (= 1440×810) wajib dijaga.** `.hero` versi Tema 2
+> `min-height`-nya 810px (styles.css §16, ikut revisi Figma `16:4171` — sebelumnya
+> 740px). Karena aset ini dipasang `object-fit: cover`, rasio yang tidak sama
+> dengan box `.hero` akan membuat browser meng-crop sisinya, dan tepi kanan
+> mockup HP-lah yang pertama kena. Jadi kalau tinggi Hero diubah, tinggi kanvas
+> di `tools/build-hero-tema2.ps1` (`$FH`) harus diubah bersamaan.
+
+### Cara membangun ulang
+
+Ada skrip-nya: **[`tools/build-hero-tema2.ps1`](../../tools/build-hero-tema2.ps1)**
+
+```bash
+powershell -NoProfile -ExecutionPolicy Bypass -File "tools/build-hero-tema2.ps1"
+```
+
+Aset sumbernya tiga PNG **mentah** (belum ada gradient-nya) di **root folder**,
+mengikuti pola aset mentah lain seperti `Instastory_*.png`. Semuanya diunduh
+dari Figma asset server saat `get_design_context` node `16:4171` dipanggil:
+
+| File sumber | Node Figma | Isi |
+| ----------- | ---------- | --- |
+| `Asset Hero 2.png` (1536×1024) | fill `16:4172` | foto massa "INDONESIA MERDEKA" |
+| `Asset Hero Kolase.png` (1672×941) | fill `16:4174` ("image 365") | kolase Proklamasi + bendera |
+| `Asset Hero HP.png` (3920×3500) | fill `16:4175` ("Rectangle") | mockup HP pemutar podcast — **punya alpha** |
+
+Posisi tiap layer, ukuran gambar di dalamnya, dan spek gradient-nya semua ada
+sebagai angka di `$layers` dalam skrip, disalin langsung dari output
+`get_design_context`. Jadi revisi desain berikutnya (tinggi frame, posisi layer,
+sudut gradient) cukup ubah angka di situ — tidak perlu export ulang per node.
+
+**Gradient-nya dihitung oleh skrip**, meniru `linear-gradient()` CSS: arah
+`(sin A, −cos A)`, panjang garis `|W·sin A| + |H·cos A|`, lalu posisi stop CSS
+(yang di sini melewati 100% — mis. `285.94%`) dipetakan ke ruang itu. Karena
+alpha-nya linear terhadap posisi, cukup 3 stop pada `LinearGradientBrush`
+(`[0, stop1, 1]`) dan hasilnya **eksak, bukan aproksimasi**. Dua overlay yang
+dipakai:
+
+| Layer | Sudut | Alpha di tepi awal → tepi akhir |
+| ----- | ----- | ------------------------------- |
+| `Asset Hero 2.png` | 264,469° | 255 → 212 (kiri tetap sangat gelap, foto cuma ~17% tembus) |
+| `Asset Hero Kolase.png` | 80,178° | 255 → 137 (kiri tertutup penuh, makin ke kanan makin tembus) |
+
+Mockup HP **tidak** diberi overlay (di Figma juga tidak) — ini satu-satunya
+layer yang tampil terang dan tajam.
+
+> **Kenapa pendekatannya berubah.** Versi skrip sebelumnya menempel dua PNG yang
+> sudah ter-render gradient-nya dari Figma ke kanvas 1440×740, karena menghitung
+> gradient ber-sudut dianggap terlalu rawan. Itu terbukti rapuh di dua hal:
+> file sumbernya sempat hilang dari root folder (dan sekali hilang, latar ini
+> tidak bisa dibangun ulang sama sekali), dan pendekatan itu terkunci di 740px —
+> di kanvas segitu mockup HP tidak punya cukup ruang vertikal, sehingga tombol
+> "Ikuti Kuis Dengar Stori" selalu jatuh di zona `.hero__blend`, dan begitu
+> asetnya digeser ke atas supaya tombolnya lolos, puncak HP-nya yang kepotong
+> navbar. Versi sekarang menyusun dari layer mentah, jadi kedua masalah itu
+> hilang sekaligus.
+
+Skrip **tidak lagi menggeser isi ke bawah** (`$shift`, dulu 40px). Geseran itu
+dulu perlu karena di frame 740 puncak mockup HP cuma 25,5px dari tepi atas,
+sementara di situs ini ada `.topbar` 50px **di atas** `.hero` (bukan overlay),
+jadi HP-nya terlihat kepotong. Frame 810 memberi ruang itu secara alami:
+puncak HP jatuh **50,3px** dari tepi atas Hero. Ramp `$fade` juga tidak perlu
+lagi, karena tidak ada strip kosong yang harus ditambal.
+
+Dua assertion menjaga supaya tidak ada yang meleset diam-diam — **gagal keras**
+daripada menghasilkan komposit yang salah:
+
+1. puncak badan HP minimal 40px dari tepi atas frame (jadi tidak bisa tersembunyi
+   di bawah navbar 50px lagi);
+2. dasar badan HP tidak boleh melewati tinggi frame.
+
+Keduanya dihitung dari bounding box alpha `Asset Hero HP.png` (terukur
+`y=288..3321`, `x=1260..2682`, sampling 8px) yang dipetakan lewat transform
+`object-fit: cover`-nya.
+
+Di HTML-nya `fetchpriority="high"` (bukan `loading="lazy"`) — Tema 2 sekarang
+**permanen aktif** (opsi Tema 1/Tema 2 sudah dihilangkan dari navbar), jadi aset
+ini yang muncul above-the-fold sejak page load dan wajar dimuat dengan prioritas
+tinggi. Aset Tema 1 (`hero-bg.jpg`) yang sebaliknya sekarang `loading="lazy"`,
+karena markup/CSS-nya sengaja dipertahankan dormant (tidak dihapus) tapi tidak
+pernah dirender.
+
+**Terverifikasi di browser (1440×900, 4 Agustus 2026)** — bukan lewat screenshot,
+karena pane browser di lingkungan ini tidak bisa compositing untuk capture layar,
+jadi semuanya diukur lewat `getBoundingClientRect` + pemetaan `object-fit: cover`
+yang dihitung ulang di halaman:
+
+| Yang diukur | Hasil |
+| ----------- | ----- |
+| Tinggi `.hero` | 810px |
+| Skala cover | tepat 0,5 (pemetaan 1:1 dari kanvas @2×) |
+| Puncak HP dari dasar navbar | **+50,3px** (sebelumnya sempat cuma +9,5px) |
+| Tepi kanan HP dari tepi kanan foto | +130px (tidak kena crop) |
+| Dasar tombol ke kurva ellipse blend | **+8,1px** (tidak tertutup) |
+| Overflow horizontal | tidak ada |
+| Error console | tidak ada |
+| Mobile 375px | `min-height` jadi 0, tinggi menyusut ke konten (665px), tidak ada overflow |
+
+Angka "dasar tombol ke kurva ellipse" dihitung terhadap **kurva** ellipse-nya,
+bukan tepi kotaknya: bentuknya benar-benar elips, jadi kedalaman zona gelapnya
+beda-beda per x — paling dalam di tengah viewport, paling dangkal di pinggir.
+Di rentang x mockup HP kurvanya mulai di y≈699–742 (koordinat frame), sementara
+dasar tombol berhenti di y≈691.
+
+`Asset Hero Section Kanan.png` (export flattened kolase+HP yang dipakai versi
+skrip lama) **sudah tidak jadi input lagi** — HP dan kolase sekarang dua layer
+terpisah sehingga posisinya bisa diatur independen. File-nya dibiarkan ada di
+root folder, tidak dihapus.
+
+**`hadiah-gopay.png`** — tumpukan kartu notifikasi GoPay di kartu "Menangkan
+Hadiah" versi **Tema 2** (Figma `57:2524`).
+
+Di Figma visual ini disusun dari elemen (3 rect putih berlapis + ikon + teks),
+tapi di sini dipakai sebagai **satu PNG transparan** — supaya bayangan berlapis
+dan ikon GoPay-nya persis seperti Figma tanpa menyusun ulang selusin elemen.
+
+Sumbernya `Asset Gopay.png` di root folder (1071×501, hasil export dari Figma).
+Skalanya **tepat 3×** ukuran Figma — terukur: kartu solidnya (alpha ≥ 240)
+menempati 951×399 px, dan 951/317 = 399/133 = 3,000 pas.
+
+Satu transformasi diterapkan saat menyalinnya ke sini: **42px transparan
+ditambahkan di ATAS**. Alasannya, padding transparan aset aslinya asimetris
+secara vertikal (30px atas vs 72px bawah, karena bayangan jatuh ke bawah), jadi
+kalau langsung di-`align-items: center` kartunya meleset ~7px ke atas. Setelah
+dipadding jadi 1071×543 dengan padding 60/60 kiri-kanan dan 72/72 atas-bawah,
+kartunya center sempurna di kanvas — CSS-nya cukup `align-items: center` tanpa
+offset ajaib. Kalau asetnya diexport ulang, ukur lagi bbox alpha-nya dan
+samakan padding atas/bawahnya.
+
+Dirender 1/3 → 357×181 CSS px, sehingga kartunya jatuh tepat 317×133 seperti
+Figma (terverifikasi di browser: x=50, w=317, h=133, Δ0 px).
 
 **`section2-bg.jpg`** — latar bawah Section 2 (node `343:4435`).
 
@@ -105,6 +256,12 @@ gambar terpisah.
 
 **`winners-map.png`** — latar peta dunia bertitik di section Pengumuman Pemenang
 (Figma "Maps", node `335:2291`).
+
+> Dipakai ulang tanpa export ulang untuk kondisi "Ongoing"/"Winner" (Figma file
+> "Backup Kuis 17an" `BbdQ2sSITixKR7raGXSOw5`, node "Maps" `23:13635`/`23:12297`) —
+> proporsi & warna dasarnya sama persis, dan node itu juga terlalu besar untuk
+> di-fetch penuh (ratusan vector, sparse-metadata response dari Figma), jadi
+> lebih murah memakai aset yang sudah ada daripada export ulang.
 
 Di Figma, layer ini sebenarnya terdiri dari **ratusan vector kecil** (tiap titik peta
 adalah shape terpisah) — tidak ada satu aset gambar yang bisa langsung dipakai. Karena
@@ -178,6 +335,28 @@ komponen lain di file Figma tersebut. Path-nya tetap direplikasi persis seperti 
 diberikan Figma (bukan diganti dengan logo TikTok generik), konsisten dengan prinsip
 mengikuti Figma apa adanya di proyek ini; url tautan tetap mengarah ke TikTok karena
 itu jelas maksud penempatannya.
+
+### Cara Main Tema 2 (`cara-main-podcast-*`)
+
+Ketiganya sumbernya `Asset Step 1/2/3.jpg` di root folder (masing-masing
+2200×2200), resize ke 1100×1100 + JPEG kualitas 82 — konsisten dengan aset
+showcase lain di proyek ini.
+
+- **`cara-main-podcast-1.jpg`** — langkah 1 ("Masuk ke Podcast Kompas.com atau
+  masuk melalui notifikasi"): halaman Kompas.com dengan menu Podcast (ikon
+  headphone) disorot, dan notifikasi "Denger Podcast bisa dapat hadiah!" di
+  bagian bawah.
+- **`cara-main-podcast-2.jpg`** — langkah 2 ("Dengarkan Podcast Dengar Stori"):
+  pemutar podcast dengan episode "Dengar Stori: Rengasdengklok dan Detik-Detik
+  Proklamasi".
+- **`cara-main-podcast-3.jpg`** — langkah 3 ("Jawab kuis di artikel"): soal
+  kuis pilihan ganda di artikel Kompas.com, dengan info "4 Orang pemenang
+  setiap harinya akan mendapatkan GoPay Rp50.000" — jadi TIDAK dipakai bersama
+  `cara-main-4.jpg` Tema 1 lagi (versi sebelumnya sempat pinjam gambar itu
+  sementara sebelum aset ini dikirim).
+
+Ketiganya sudah dicek isinya persis cocok dengan copy langkah masing-masing —
+tidak ada yang tertukar urutan.
 
 ## Kalau nama file perlu berbeda
 

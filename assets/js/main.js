@@ -100,14 +100,21 @@
       else step.removeAttribute('aria-current');
     });
 
-    // Dibatasi ke showcase yang sedang tidak hidden (tab aktif) saja — Instastory
-    // dan Mediopods masing-masing punya showcase & aset gambar sendiri sekarang.
+    // Dibatasi ke showcase yang BENAR-BENAR terlihat (activeShowcase(), lihat
+    // definisinya di §3f) — bukan cuma `:not([hidden])`. Sejak ada 3 showcase
+    // (Instastory, Mediopods, Podcast Tema 2), showcase Tema 2 disembunyikan
+    // lewat CSS `display:none` berbasis `data-theme` (bukan atribut `hidden`,
+    // yang cuma dipakai untuk switching TAB di dalam Tema 1) — jadi dua showcase
+    // sekaligus bisa lolos `:not([hidden])` walau cuma satu yang kelihatan.
+    var activeSc = activeShowcase();
     var showItem = null;
     var hideItems = [];
-    $$('.showcase:not([hidden]) [data-showcase-step]').forEach(function (item) {
-      if (item.getAttribute('data-showcase-step') === String(stepNumber)) showItem = item;
-      else hideItems.push(item);
-    });
+    if (activeSc) {
+      $$('[data-showcase-step]', activeSc).forEach(function (item) {
+        if (item.getAttribute('data-showcase-step') === String(stepNumber)) showItem = item;
+        else hideItems.push(item);
+      });
+    }
 
     if (skipAnim) {
       hideItems.forEach(function (item) { item.hidden = true; });
@@ -116,13 +123,12 @@
       crossfade(showItem, hideItems);
     }
 
-    // Titik indikator di bawah showcase desktop — per-showcase supaya index-nya
-    // tidak ikut geser kalau (secara teori) lebih dari satu showcase tidak hidden.
-    $$('.showcase:not([hidden])').forEach(function (showcase) {
-      $$('.showcase__dot', showcase).forEach(function (dot, i) {
+    // Titik indikator di bawah showcase desktop — cuma showcase yang aktif itu.
+    if (activeSc) {
+      $$('.showcase__dot', activeSc).forEach(function (dot, i) {
         dot.classList.toggle('is-active', String(i + 1) === String(stepNumber));
       });
-    });
+    }
   }
 
   (function initSteps() {
@@ -134,10 +140,8 @@
         selectStep(step.getAttribute('data-step'));
         // Klik manual me-restart hitungan 5 detik showcase yang lagi aktif,
         // biar tidak langsung "kesambar" auto-advance sesaat setelah diklik.
-        var activeShowcase = $('.showcase:not([hidden])');
-        if (activeShowcase && showcaseAutoplay[activeShowcase.id]) {
-          showcaseAutoplay[activeShowcase.id].start();
-        }
+        var sc = activeShowcase();
+        if (sc && showcaseAutoplay[sc.id]) showcaseAutoplay[sc.id].start();
       });
     });
 
@@ -283,35 +287,86 @@
   });
 
   /* ------------------------------------------------------------------------
-     3e. Gerbang auto-slide "Cara Main" — baik showcase desktop maupun
+     3e. Helper "siapa yang benar-benar aktif" untuk showcase/carousel Cara
+        Main. Situs ini dulunya punya switcher "Tema 1"/"Tema 2" di navbar
+        (sudah dilepas atas permintaan — Tema 2 sekarang permanen, lihat §16
+        di styles.css) — tapi markup Tema 1 (showcase Instastory/Mediopods,
+        carousel-nya, dst.) masih ada di DOM, cuma disembunyikan lewat CSS
+        `display:none` berbasis `data-theme` yang sekarang selalu "tema-2".
+
+        `isVisible()` karena itu sengaja tidak cuma mengecek atribut `hidden`
+        (mekanisme tab Instastory/Mediopods DI DALAM markup Tema 1 yang
+        dormant itu) — showcase Tema 1 yang sedang "aktif" secara tab (tanpa
+        atribut `hidden`) tetap harus dianggap TIDAK terlihat kalau leluhurnya
+        `display:none`. `offsetParent === null` menutupi kedua kasus sekaligus
+        (atribut ATAU CSS display, dari ancestor mana pun) tanpa perlu tahu
+        markup mana yang sedang dormant.
+     ------------------------------------------------------------------------ */
+  function isVisible(el) {
+    return !!el && !el.hidden && el.offsetParent !== null;
+  }
+
+  function activeShowcase() {
+    var list = $$('.showcase:not([hidden])');
+    for (var i = 0; i < list.length; i++) {
+      if (isVisible(list[i])) return list[i];
+    }
+    return null;
+  }
+
+  function activeCarouselRoot() {
+    var list = $$('[data-carousel]:not([hidden])');
+    for (var i = 0; i < list.length; i++) {
+      if (isVisible(list[i])) return list[i];
+    }
+    return null;
+  }
+
+  // Hentikan SEMUA timer, lalu nyalakan lagi cuma yang sedang benar-benar
+  // aktif. `selectStep('1', true)` disamakan dengan perilaku initTabs():
+  // setiap kali "cara main"-nya berganti (tab), mulai lagi dari langkah 1 —
+  // supaya kontennya tidak mungkin nyasar menampilkan langkah N dari
+  // showcase yang berbeda dari step-list yang sedang disorot. Dipanggil dari
+  // gerbang scroll (§3f) begitu section-nya pertama kali kelihatan.
+  function syncActivePlayMedia() {
+    selectStep('1', true);
+
+    Object.keys(showcaseAutoplay).forEach(function (id) { showcaseAutoplay[id].stop(); });
+    Object.keys(carousels).forEach(function (id) { carousels[id].stop(); });
+
+    var sc = activeShowcase();
+    if (sc && showcaseAutoplay[sc.id]) showcaseAutoplay[sc.id].start();
+
+    var cr = activeCarouselRoot();
+    if (cr && carousels[cr.id]) {
+      carousels[cr.id].reset();
+      carousels[cr.id].start();
+    }
+  }
+
+  /* ------------------------------------------------------------------------
+     3f. Gerbang auto-slide "Cara Main" — baik showcase desktop maupun
         carousel mobile BARU mulai auto-advance setelah user benar-benar
         scroll sampai section ini terlihat, bukan langsung jalan sejak
         halaman dimuat (biar tidak ada slide yang "kelewat" sebelum user
         sempat melihatnya). Sekali section ini pernah kelihatan, observer-nya
         berhenti mengamati — perilaku start/stop selanjutnya (hover, ganti
-        tab, klik langkah) tetap berjalan seperti biasa lewat registry di atas.
+        tab, klik langkah) tetap berjalan seperti biasa lewat
+        syncActivePlayMedia() di atas.
      ------------------------------------------------------------------------ */
   (function initPlaySectionAutoplayGate() {
     var section = $('.play');
     if (!section || reduceMotion) return; // reduced-motion: start() sendiri sudah no-op
 
-    function startWhicheverIsActive() {
-      var activeShowcase = $('.showcase:not([hidden])');
-      if (activeShowcase && showcaseAutoplay[activeShowcase.id]) showcaseAutoplay[activeShowcase.id].start();
-
-      var activeCarouselRoot = $('[data-carousel]:not([hidden])');
-      if (activeCarouselRoot && carousels[activeCarouselRoot.id]) carousels[activeCarouselRoot.id].start();
-    }
-
     if (!('IntersectionObserver' in window)) {
-      startWhicheverIsActive();
+      syncActivePlayMedia();
       return;
     }
 
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (!entry.isIntersecting) return;
-        startWhicheverIsActive();
+        syncActivePlayMedia();
         io.disconnect();
       });
     }, { threshold: 0.15, rootMargin: '0px 0px -10% 0px' });
@@ -379,31 +434,63 @@
   })();
 
   /* ------------------------------------------------------------------------
-     4. Gating section Pengumuman Pemenang
-        Tampil hanya setelah CAMPAIGN.winnersAnnouncedAt.
-        Preview manual: ?preview=winners (paksa tampil)
-                        ?preview=running (paksa sembunyi)
+     4. Kondisi section Pengumuman Pemenang — "Ongoing" (kampanye masih
+        berjalan) vs "Winner" (daftar pemenang sudah ada). Section-nya sendiri
+        SELALU ada di DOM sekarang (tidak pernah `hidden` total seperti
+        sebelumnya) — yang berubah cuma kontennya, lewat atribut
+        `data-winners-state` pada `.slab--winners` (lihat styles.css §17).
 
-     ⚠️ SEMENTARA DINONAKTIFKAN untuk keperluan review desain & konten.
-     Section akan SELALU tampil terlepas dari tanggal, sampai flag di bawah
-     ini dikembalikan ke `false`. JANGAN lupa set balik sebelum go-live —
-     tanpa ini, pemenang akan terlihat publik sebelum periode kuis berakhir.
+        Default state ditentukan sama seperti gating lama (tanggal
+        CAMPAIGN.winnersAnnouncedAt / query string), tapi sekarang bisa
+        di-override manual lewat 2 tombol "Ongoing"/"Winner" di navbar
+        (.state-switch, styles.css §3) — untuk keperluan preview stakeholder,
+        makanya TIDAK disimpan ke localStorage (beda dari bekas theme-switch;
+        ini alat bantu review, bukan preferensi pengguna).
+
+        Preview manual lewat query string tetap seperti sebelumnya:
+        ?preview=winners (paksa "winner")  ?preview=running (paksa "ongoing")
+
+     ⚠️ SEMENTARA DIPAKSA "winner" untuk keperluan review desain & konten.
+     JANGAN lupa set flag di bawah ini balik ke `false` sebelum go-live —
+     tanpa ini, daftar pemenang akan terlihat publik sebelum periode kuis
+     berakhir (walau datanya masih placeholder `agus***wati09@gmail.com`).
      ------------------------------------------------------------------------ */
   var DEV_ALWAYS_SHOW_WINNERS = true;
 
-  (function initWinnersGate() {
+  (function initWinnersState() {
     var section = $('[data-winners]');
     if (!section) return;
 
+    var VALID_STATES = ['ongoing', 'winner'];
+    var btns = $$('[data-winners-btn]');
+
+    function markActiveButton(state) {
+      btns.forEach(function (btn) {
+        btn.classList.toggle('is-active', btn.getAttribute('data-winners-btn') === state);
+      });
+    }
+
+    function setState(state) {
+      if (VALID_STATES.indexOf(state) === -1) return;
+      section.setAttribute('data-winners-state', state);
+      markActiveButton(state);
+    }
+
     var announceAt = new Date(CAMPAIGN.winnersAnnouncedAt).getTime();
-    var shouldShow;
+    var defaultState;
 
-    if (DEV_ALWAYS_SHOW_WINNERS) shouldShow = true;
-    else if (previewMode === 'winners') shouldShow = true;
-    else if (previewMode === 'running') shouldShow = false;
-    else shouldShow = isFinite(announceAt) && Date.now() >= announceAt;
+    if (DEV_ALWAYS_SHOW_WINNERS) defaultState = 'winner';
+    else if (previewMode === 'winners') defaultState = 'winner';
+    else if (previewMode === 'running') defaultState = 'ongoing';
+    else defaultState = (isFinite(announceAt) && Date.now() >= announceAt) ? 'winner' : 'ongoing';
 
-    section.hidden = !shouldShow;
+    setState(defaultState);
+
+    btns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        setState(btn.getAttribute('data-winners-btn'));
+      });
+    });
   })();
 
   /* ------------------------------------------------------------------------
@@ -436,25 +523,58 @@
   })();
 
   /* ------------------------------------------------------------------------
-     6. Newsletter footer — placeholder submit
-        Ganti dengan endpoint langganan yang sebenarnya.
+     6. Countdown — dipakai 2 tempat sekarang: "Dimulai dalam" di Hero Tema 2
+        (target CAMPAIGN.startAt) dan "Akan diumumkan dalam" di section
+        Pengumuman Pemenang kondisi "Ongoing" (target
+        CAMPAIGN.winnersAnnouncedAt) — lihat styles.css §5 `.countdown` untuk
+        tampilan dasarnya, §16/§17 untuk toggle tampil/sembunyinya masing-
+        masing. Setiap elemen `[data-countdown-target]` punya timer sendiri,
+        independen — target-nya adalah NAMA KEY di CAMPAIGN (bukan tanggal
+        literal), dibaca dari atribut itu sendiri, supaya satu fungsi ini
+        cukup untuk semua instance tanpa perlu tahu berapa banyak yang ada.
+
+        Elemen disembunyikan otomatis begitu tanggal target-nya lewat — bukan
+        berhenti di "0 Hari 0 Jam...", karena label "Dimulai dalam"/"Akan
+        diumumkan dalam" tidak lagi relevan setelah itu.
      ------------------------------------------------------------------------ */
-  (function initNewsletter() {
-    var form = $('.fnews');
-    if (!form) return;
+  (function initCountdowns() {
+    $$('[data-countdown-target]').forEach(function (el) {
+      var targetAt = new Date(CAMPAIGN[el.getAttribute('data-countdown-target')]).getTime();
+      if (!isFinite(targetAt)) return;
 
-    form.addEventListener('submit', function (event) {
-      event.preventDefault();
-      var input = $('.fnews__input', form);
-      var value = input ? input.value.trim() : '';
+      var fields = {
+        days: $('[data-countdown="days"]', el),
+        hours: $('[data-countdown="hours"]', el),
+        minutes: $('[data-countdown="minutes"]', el),
+        seconds: $('[data-countdown="seconds"]', el)
+      };
 
-      if (!value || value.indexOf('@') === -1) {
-        if (input) input.focus();
-        return;
+      // Hari sengaja TIDAK dipad (samakan gaya "5" di Figma) — jumlah hari
+      // sampai target tidak akan sebesar-besar itu, jadi tidak masalah kalau
+      // lebih dari 1 digit. Jam/menit/detik dipad 2 digit supaya lebar
+      // kotaknya tidak "loncat" tiap kali nilainya melewati batas 10 — Figma
+      // cuma menunjukkan nilai sesaat (10, 3), bukan aturan padding yang
+      // disengaja.
+      function pad(n) { return n < 10 ? '0' + n : String(n); }
+
+      function tick() {
+        var diff = targetAt - Date.now();
+        if (diff <= 0) {
+          el.hidden = true;
+          return false;
+        }
+        var totalSeconds = Math.floor(diff / 1000);
+        fields.days.textContent = String(Math.floor(totalSeconds / 86400));
+        fields.hours.textContent = pad(Math.floor((totalSeconds % 86400) / 3600));
+        fields.minutes.textContent = pad(Math.floor((totalSeconds % 3600) / 60));
+        fields.seconds.textContent = pad(totalSeconds % 60);
+        return true;
       }
-      // TODO: hubungkan ke endpoint langganan Kompas.com.
-      var btn = $('.fnews__btn', form);
-      if (btn) btn.textContent = 'Terkirim';
+
+      if (!tick()) return; // sudah lewat sejak awal — jangan pasang interval
+      var timer = window.setInterval(function () {
+        if (!tick()) window.clearInterval(timer);
+      }, 1000);
     });
   })();
 

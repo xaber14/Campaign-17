@@ -178,6 +178,32 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
 }
 .topbar__account:hover { background: rgba(255, 255, 255, .08); }
 
+.topbar__right { display: flex; align-items: center; gap: 14px; }
+
+/* Preview kondisi Pengumuman Pemenang — bukan bagian dari Figma, kontrol
+   fungsional untuk stakeholder review (lihat §16 "Kondisi Pemenang" di bagian
+   bawah file ini). Gaya tombolnya sengaja disamakan dengan bekas
+   `.theme-switch` yang sudah dilepas (pill kecil, sama treatment hover/aktif)
+   supaya konsisten secara visual — tapi ini KONTROL YANG BERBEDA (kondisi
+   kampanye, bukan tema tampilan), classnya juga baru semua. */
+.state-switch { display: flex; gap: 6px; }
+.state-switch__btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--charcoal-white);
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 999px;
+  transition: background-color .18s ease, border-color .18s ease, color .18s ease;
+}
+.state-switch__btn:hover { border-color: rgba(255, 255, 255, .3); color: var(--white); }
+.state-switch__btn.is-active {
+  background: var(--yale-blue-50);
+  border-color: transparent;
+  color: var(--white);
+}
+
 /* --------------------------------------------------------------------------
    4. Buttons
    -------------------------------------------------------------------------- */
@@ -246,6 +272,8 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
   object-fit: cover;
   object-position: center bottom;
 }
+/* Tema 2 punya komposit latar sendiri (hero-bg-tema2.jpg) — lihat §16. */
+.hero__photo-img--tema-2 { display: none; }
 
 /* Blurred blend shape — Figma "Ellipse 3" (343:1315).
    Exported SVG is authoritative: ellipse fill #1C1A16, opacity .98,
@@ -351,6 +379,39 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
   color: var(--neutral-pale);
 }
 
+/* Highlight kotak di balik teks — dipakai headline Tema 2 (Figma 44:6656).
+   Beda dari `.u-accent` (cuma ganti warna teks): ini kotak solid di
+   belakang teks, jadi harus tetap `display:inline` supaya ikut alur baris
+   teks (bukan absolute-position seperti rect aslinya di Figma, yang
+   posisinya cuma pas untuk satu lebar viewport tertentu).
+
+   Padding pakai em (bukan px) supaya ikut mengecil bareng --h1 di breakpoint
+   mobile. Vertikal jauh lebih kecil dari horizontal, dan itu memang disengaja:
+   tinggi content-box elemen *inline* ditentukan metrik font (ascent+descent
+   Inter ≈ 1,21em = 58px @48px), BUKAN font-size. Jadi 0,05em → 58 + 4,8 ≈ 63px,
+   persis rect 63px di Figma dan masih di dalam line box 62,4px (line-height
+   1.3) sehingga tidak menabrak baris di atasnya. Padding 0,15em di kedua sisi
+   horizontal = 7,2px @48px, sesuai selisih rect 252px vs lebar teksnya. */
+.hero__highlight {
+  background: var(--gold);
+  color: var(--white);
+  padding: 0.05em 0.15em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/* Figma 44:6659 — kalimat pembuka sub-headline Tema 2 dibuat cream + semibold.
+   Pakai <strong> supaya penekanannya ikut terbawa ke screen reader; berat
+   font-nya diturunkan ke 600 sesuai Figma (bukan 700 default <strong>). */
+.hero__lead-accent { color: var(--cream); font-weight: 600; }
+
+/* Tema 2 (headline+subheadline) disembunyikan sampai data-theme="tema-2"
+   aktif — lihat §16 "Tema" di bagian bawah file ini untuk override yang
+   menampilkannya. (`.hero__facts--tema-2` disembunyikan di bawah, SETELAH
+   rule `.hero__facts` dasar, supaya spesifisitas yang sama tidak ketiban
+   cascade order dan balik jadi `flex`.) */
+.hero__copy--tema-2 { display: none; }
+
 .hero__actions {
   display: flex;
   align-items: center;
@@ -358,6 +419,7 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
   flex-wrap: wrap;
   justify-content: center;
 }
+.hero__actions--tema-2 { display: none; }
 .hero__or {
   font-size: var(--b2);
   color: var(--neutral-muted);
@@ -382,11 +444,70 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
 }
 .fact__icon { width: 16px; height: 16px; flex: none; }
 .fact__value { font-size: 18px; font-weight: 700; color: var(--white); }
+
+/* Badge bundar di belakang ikon fact — dipakai Tema 2 (Figma 44:6664).
+   Diposisikan absolute supaya bisa center vertikal terhadap label + nilai
+   sekaligus tanpa div pembungkus tambahan di dalam <dl> — `dl > div` hanya
+   boleh berisi dt/dd, jadi menambah div lagi akan membuat HTML tidak valid.
+   Containing block-nya (`position: relative` pada `.fact`) di-set di §16,
+   satu-satunya tempat badge ini dipakai. */
+.fact__badge {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  transform: translateY(-50%);
+  border-radius: 999px;
+  background: var(--surface-1);
+}
+
+.hero__facts--tema-2 { display: none; }
 .fact__sep {
   width: 5px; height: 5px;
   border-radius: 50%;
   background: var(--neutral-base);
   flex: none;
+}
+
+/* Countdown "Dimulai dalam" — Figma 65:5494, cuma dipakai Tema 2 (lihat
+   toggle-nya di §16). Warna kotak (#292723) dan separator (#333) tidak
+   dipetakan ke token §1 — nilai spesifik komponen ini saja, tidak dipakai di
+   tempat lain, jadi ditulis literal seperti pola ikon footer (§12). */
+.countdown { display: none; align-items: center; gap: 24px; }
+.countdown__label {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--white);
+  white-space: nowrap;
+}
+.countdown__boxes { display: flex; align-items: center; gap: 4px; }
+.countdown__box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 56px;
+  height: 65px;
+  padding-top: 4px;
+  background: #292723;
+  border-radius: 4px;
+}
+.countdown__value { font-size: 24px; font-weight: 700; line-height: 1.4; color: var(--white); }
+.countdown__unit { font-size: 14px; font-weight: 400; line-height: 1.5; color: var(--white); }
+.countdown__sep {
+  width: 8px;
+  height: 65px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #333;
 }
 
 /* --------------------------------------------------------------------------
@@ -469,7 +590,12 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
   width: 333px;
   height: 222px;
 }
+/* Tema 2 pakai visual sendiri (tumpukan kartu GoPay) — lihat §16. Aturan
+   sembunyi ini WAJIB setelah `.prize__media` di atas: spesifisitasnya sama
+   (0,1,0) jadi yang menentukan urutan file, bukan bobot selector. */
+.prize__media--tema-2 { display: none; }
 .prize__media .opt-img { width: 100%; height: 100%; object-fit: cover; }
+.prize__media--tema-2 img { display: block; width: 100%; height: auto; }
 .prize__placeholder {
   display: grid;
   place-items: center;
@@ -482,6 +608,8 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
 }
 /* Figma 356:1808 — gap 24 between title / list / CTA line */
 .prize__copy { display: flex; flex-direction: column; gap: 24px; }
+/* Idem `.prize__media--tema-2` — harus setelah `.prize__copy` (spesifisitas sama). */
+.prize__copy--tema-2 { display: none; }
 /* Figma 356:1809 — H4 28px bold, white with the price+winner clause in cream */
 .prize__title {
   font-size: var(--h4);
@@ -806,10 +934,16 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
 }
 
 /* --------------------------------------------------------------------------
-   10. Pengumuman pemenang — Figma "Desktop - 3" (335:613), h 534.
+   10. Pengumuman pemenang — 2 kondisi, "Ongoing"/"Winner" (Figma file
+   "Backup Kuis 17an" BbdQ2sSITixKR7raGXSOw5, node 23:13634 / 23:12296).
+   Ditoggle lewat `data-winners-state` pada `.slab--winners` — lihat §16
+   "Kondisi Pemenang" di bagian bawah file ini untuk aturan tampil/sembunyi-
+   nya, dan initWinnersState di assets/js/main.js untuk logic default state +
+   tombol Ongoing/Winner di navbar.
+
    Dark slab (NOT the light/platinum theme used in an earlier draft — verified
    against the exported map asset, which is a fully opaque #262523 fill, and
-   against 335:750's text colours, all white/cream/neutral-pale).
+   against the text colours, all white/cream/neutral-pale).
    -------------------------------------------------------------------------- */
 .slab--winners {
   padding-block: 80px 135px;
@@ -817,18 +951,16 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
   color: var(--white);
   overflow: hidden;
 }
-.slab--winners[hidden] { display: none; }
 
-/* Background artwork — Figma "Maps" (335:2291): a dot-matrix world map.
-   Exported as ONE flattened PNG via Figma's download_assets (hundreds of
-   individual dot vectors, no single bundled asset existed otherwise). Its
-   base fill (#262523) is fully opaque and already matches this section's
-   background exactly, so it can sit directly on top with no extra veil.
-   In Figma the map is clipped by the section to a visible height of 431px,
-   and 103 (its offset from the section top) + 431 lands exactly on the
-   section's own height (534) — so its bottom edge is flush with the
-   section's bottom edge. Anchored via `bottom: 0` (not `top`) so that stays
-   true even if the section's height changes at other viewport widths. */
+/* Background artwork — Figma "Maps": dot-matrix world map, ratusan vector
+   titik kecil. Dipakai ulang dari `winners-map.png` yang sudah ada (di-export
+   dulu lewat Figma download_assets sebagai satu PNG flattened, bukan
+   direkonstruksi manual) — node "Maps" di file Figma baru ini punya proporsi
+   & warna dasar (#262523, opaque) yang sama persis, jadi tidak perlu
+   export ulang. Di Figma map di-clip section ke tinggi 431px dan menempel ke
+   dasar (103 offset + 431 = 534 = tinggi section aslinya) — anchor `bottom:0`
+   (bukan `top`) supaya itu tetap benar walau tinggi section berubah di
+   breakpoint lain. */
 .slab--winners .slab__bg {
   position: absolute;
   left: 0;
@@ -842,7 +974,7 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
   pointer-events: none;
 }
 
-/* Figma 335:750 — outer stack gap 40 between header / grid / note */
+/* outer stack gap 40 antara [intro] / [grid tanggal] / [countdown atau note] */
 .winners {
   position: relative;
   z-index: 2;
@@ -851,7 +983,13 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
   align-items: center;
   gap: 40px;
 }
-.winners__head { display: flex; flex-direction: column; gap: 12px; text-align: center; }
+/* Kondisi "Winner" default disembunyikan — lihat override tampil di §16
+   ("Ongoing" jadi default kalau JS gagal jalan, sengaja tidak membocorkan
+   status pemenang tanpa JS, walau datanya di sini cuma placeholder). */
+.winners--winner { display: none; }
+
+.winners__intro { display: flex; flex-direction: column; align-items: center; gap: 24px; text-align: center; }
+.winners__head { display: flex; flex-direction: column; gap: 12px; }
 .winners__eyebrow {
   font-size: var(--sh1);
   font-weight: 600;
@@ -864,14 +1002,24 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
   line-height: var(--lh);
   color: var(--cream);
 }
-
-.winners__grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  width: 100%;
+.winners__lead {
+  max-width: 586px;
+  font-size: var(--b2);
+  line-height: var(--lh);
+  color: var(--neutral-pale);
 }
-.winner {
+
+/* Grid tanggal — 6 kartu, baris 1 empat kartu (stretch mengisi lebar),
+   baris 2 dua kartu SISA (lebar tetap 258.5px, di-center — bukan ikut
+   stretch seperti baris 1), sesuai struktur asli Figma-nya. 258.5px itu
+   sendiri = lebar satu kolom baris 1 di 1070px (1070 - 3×12 gap) / 4. */
+.winners__days { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+.winners__days-row { display: flex; gap: 12px; width: 100%; }
+.winners__days-row--pair { justify-content: center; }
+
+.winner-day {
+  flex: 1 0 0;
+  min-width: 0;
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -879,17 +1027,56 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
   background: var(--winner-card);
   border-radius: var(--radius);
 }
-.winner__rank {
+.winners__days-row--pair .winner-day { flex: 0 0 258.5px; }
+
+.winner-day__date {
   font-size: var(--b1);
   font-weight: 600;
   line-height: var(--lh);
   color: var(--white);
 }
-.winner__id {
+.winner-day__email {
   font-size: var(--b2);
   line-height: var(--lh);
   color: var(--neutral-pale);
   overflow-wrap: anywhere;
+}
+
+/* Skeleton placeholder ("Ongoing") — 4 bar makin pendek, meniru baris nama
+   pemenang yang belum ada. Lebar persis Figma: 226.5px (100%), 123px
+   (54%), 166px (73%), 192px (85%) — dari lebar konten kartu 226.5px
+   (258.5 kartu − 16×2 padding), jadi ditulis persen relatif ke situ, bukan
+   px tetap, supaya ikut menyesuaikan kalau lebar kartu berubah di breakpoint
+   lain (lihat §13). */
+.winner-day__skeleton { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+.winner-day__bar {
+  display: block;
+  width: 100%;
+  height: 12px;
+  border-radius: 3px;
+  background: var(--charcoal-light);
+}
+
+/* Countdown "Akan diumumkan dalam" — komponen `.countdown` yang sama dipakai
+   Hero (§5), cuma warna kotaknya beda: di sini #3A3836 (`--winner-card`,
+   menyatu dengan kartu tanggal di section ini), bukan #292723 milik Hero.
+   Targetnya juga beda (`data-countdown-target="winnersAnnouncedAt"` bukan
+   `"startAt"` — lihat initCountdowns di main.js, satu fungsi yang sama
+   melayani kedua instance secara independen).
+
+   `.countdown` dasarnya (§5) `display:none` by default — visible/mobile-stack
+   -nya datang dari rule `[data-theme="tema-2"] .countdown` di §16, yang
+   sekarang berlaku GLOBAL karena Tema 2 permanen di seluruh halaman (bukan
+   cuma di Hero). Kalau nanti Tema 1 dihidupkan lagi jadi opsional, instance
+   ini butuh rule visibility sendiri, tidak boleh cuma menumpang tema. */
+.winners__countdown .countdown__box { background: var(--winner-card); }
+
+.winners__note {
+  max-width: 640px;
+  font-size: var(--b2);
+  line-height: var(--lh);
+  color: var(--neutral-pale);
+  text-align: center;
 }
 
 .winners__note {
@@ -1043,7 +1230,11 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
   .slab--play { padding-bottom: 72px; }
   .play { margin-top: 72px; }
   .slab--tnc { padding-block: 80px; }
-  .winners__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* 2 kartu per baris terlepas dari kelompok baris asli (4+2) — cukup bikin
+     kedua `.winners__days-row` wrap, dan lebar tetap baris-pasangan (258.5px)
+     dilepas supaya dia ikut jadi 2 kolom lebar sama seperti baris pertama. */
+  .winners__days-row { flex-wrap: wrap; }
+  .winner-day, .winners__days-row--pair .winner-day { flex: 1 1 calc(50% - 6px); }
   .slab--winners { padding-block: 64px 80px; }
 }
 
@@ -1064,7 +1255,11 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
   /* Ganti list-langkah + showcase bersama dengan carousel per-tab (lihat §9b). */
   .play__body { display: none; }
   .steps-carousel:not([hidden]) { display: block; }
-  .winners__grid { grid-template-columns: 1fr; }
+  .winner-day, .winners__days-row--pair .winner-day { flex: 1 1 100%; }
+  /* Tidak perlu override `.winners__countdown` di sini — komponen `.countdown`
+     dasarnya sudah di-stack lewat rule `[data-theme="tema-2"] .countdown`
+     (§16), yang sekarang berlaku global karena Tema 2 permanen (lihat catatan
+     di §16 "Tema"). Berlaku sama untuk countdown Hero maupun di sini. */
   .prize__title { text-align: center; }
   .tnc__title { text-align: center; }
   .site-footer__row { flex-direction: column; gap: 32px; }
@@ -1112,10 +1307,32 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
 
   /* Pemenang: langkah stagger sedikit lebih pelan — kesan "diumumkan satu per
      satu", cocok untuk momen pengumuman, bukan sekadar UI berbaris biasa. */
-  .winners__grid { --reveal-step: 110ms; }
+  .winners__days { --reveal-step: 110ms; }
 
   /* Signature: dokumenter push-in yang sangat lambat & halus. */
   .hero__photo-img { animation: heroKenBurns 26s ease-in-out infinite alternate; }
+
+  /* Foto latar Tema 2: masuk dari kanan sekali setiap kali elemen ini
+     ditampilkan (baik saat load pertama jika Tema 2 aktif, maupun setiap
+     kali tombol "Tema 2" diklik — browser otomatis mengulang animasi ketika
+     elemen `display:none` berubah jadi tampil lagi).
+
+     Selama slide-in, 72px di tepi kiri sesaat tidak tertutup gambar sehingga
+     latar `.hero` menyembul — karena itu latar Tema 2 wajib `--bg` (#1C1A16),
+     lihat catatannya di §16; dengan `--bg-hero` bawaan Tema 1 strip itu
+     terlihat sebagai kilasan cokelat terang.
+
+     TIDAK ikut Ken Burns (diminta dihilangkan 4 Agustus 2026) — mockup HP di
+     dalam foto ini punya teks/UI kecil yang jadi kurang nyaman dibaca saat
+     ikut discale, beda dengan foto arsip Tema 1 yang aman untuk efek itu.
+     Karena `.hero__photo-img--tema-2` (0,2,0) lebih spesifik dari
+     `.hero__photo-img` (0,1,0) di atas, cukup set `animation` di sini ke
+     `heroSlideInRight` saja — shorthand-nya menimpa total (tidak
+     "menggabung" dengan aturan yang kurang spesifik), jadi `heroKenBurns`
+     otomatis tidak ikut berlaku di sini. */
+  [data-theme="tema-2"] .hero__photo-img--tema-2 {
+    animation: heroSlideInRight .9s cubic-bezier(.16, .9, .24, 1) both;
+  }
 
   /* Banner Hadiah: garis cahaya tipis & miring yang menyapu kiri→kanan, lalu
      diam sampai siklus berikutnya (bukan berkilau terus-menerus).
@@ -1152,6 +1369,15 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
   to   { transform: scale(1.07); }
 }
 
+/* Slide-in Tema 2 — lihat pemakaiannya di atas. Jarak 72px cukup kelihatan
+   sebagai gerakan "masuk", tapi tidak sejauh/selama hero__actions dkk
+   (data-reveal, translateY 28px, .7s) supaya tidak terasa lebih lambat dari
+   konten teks di sebelahnya yang sudah muncul lebih dulu. */
+@keyframes heroSlideInRight {
+  from { translate: 72px 0; opacity: 0; }
+  to   { translate: 0 0;    opacity: 1; }
+}
+
 /* 1200% = 12 × lebar garis (16% kartu) = 1,92 × lebar kartu — jarak yang sama
    dengan sebelumnya (waktu garisnya masih 40%), supaya tetap menyapu tuntas
    dari luar tepi kiri sampai lewat sepenuhnya di tepi kanan meski garisnya
@@ -1185,3 +1411,326 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
     transition-duration: .001ms !important;
   }
 }
+
+/* --------------------------------------------------------------------------
+   16. Tema
+
+   Situs ini dulunya punya 2 tema yang bisa dipilih lewat 2 tombol di navbar
+   ("Tema 1" / "Tema 2"). Tombol itu sudah DILEPAS atas permintaan langsung —
+   Tema 2 sekarang PERMANEN, satu-satunya tampilan aktif: `<html>` di
+   `index.html` di-hardcode `data-theme="tema-2"`, tidak ada lagi JS yang
+   mengubahnya, dan tidak ada localStorage yang perlu disinkronkan.
+
+   Mekanismenya tetap sama seperti dulu — atribut `data-theme` di <html>
+   menentukan set variabel warna & blok konten `--tema-2` mana yang aktif —
+   cuma sekarang nilainya tidak pernah berubah. SEMUA aturan `[data-theme=
+   "tema-2"] ...` di bawah karena itu SELALU berlaku; tidak dihapus/disatukan
+   ke rule dasar supaya markup & CSS Tema 1 (masih ada di `index.html`,
+   sengaja tidak dihapus) tetap konsisten disembunyikan lewat mekanisme yang
+   sama, dan supaya Tema 2 mudah dikembalikan jadi opsional lagi kalau
+   suatu saat dibutuhkan.
+
+   Warna Tema 2 masih placeholder kosong (belum ada override token di bawah)
+   — jadi walau Tema 2 sekarang permanen, TAMPILAN WARNANYA masih identik
+   dengan Tema 1 sampai token-nya diisi. Kontennya sendiri (copy Hero, Cara
+   Main, dst.) sudah beda — lihat blok `--tema-2` masing-masing section
+   (contoh: `.hero__copy--tema-2`, `.hero__facts--tema-2` di §5 Hero) yang
+   di-toggle lewat aturan di bawah.
+   -------------------------------------------------------------------------- */
+[data-theme="tema-2"] {
+  /* TODO: isi override token warna Tema 2 di sini. Contoh token yang
+     relevan untuk tema (lihat nilai default masing-masing di §1 Tokens):
+     --bg, --bg-hero, --surface-1, --surface-2, --line, --line-strong,
+     --gold, --gold-hover, --gold-deep, --cream, --flag-red, --yale-blue-50,
+     --white, --neutral-30, --neutral-pale, --neutral-dim, --neutral-base,
+     --neutral-muted, --surface-raised, --switch-track, --switch-thumb,
+     --winners-bg, --winner-card, --bg-light, --platinum-light, --platinum,
+     --charcoal, --charcoal-light, --charcoal-lightest, --charcoal-white. */
+}
+
+/* Konten yang beda per tema (bukan cuma warna) — lihat §5 Hero untuk markup
+   duplikatnya (`.hero__copy--tema-1/2`, `.hero__actions--tema-1/2`,
+   `.hero__facts--tema-1/2`), pola yang sama dengan dua panel
+   Instastory/Mediopods di §9.
+
+   Semua selector di bawah spesifisitasnya 0,2,0 (atribut + class), jadi selalu
+   menang atas rule dasar 0,1,0 di §5 tanpa bergantung urutan file. */
+[data-theme="tema-2"] .hero__copy--tema-1,
+[data-theme="tema-2"] .hero__actions--tema-1,
+[data-theme="tema-2"] .hero__facts--tema-1,
+[data-theme="tema-2"] .hero__logo--tema-1,
+[data-theme="tema-2"] .hero__photo-img--tema-1 { display: none; }
+[data-theme="tema-2"] .hero__copy--tema-2 { display: flex; }
+[data-theme="tema-2"] .hero__actions--tema-2 { display: flex; }
+[data-theme="tema-2"] .hero__facts--tema-2 { display: flex; }
+[data-theme="tema-2"] .hero__photo-img--tema-2 { display: block; }
+[data-theme="tema-2"] .countdown { display: flex; margin-top: 32px; }
+
+/* Hero Tema 2 — Figma 44:6649. Perbedaan layout-nya dari Tema 1: rata kiri
+   (bukan center), tanpa logo Dengar Stori, satu CTA saja, dan blok kontennya
+   center vertikal di dalam Hero.
+
+   Center vertikal-nya lewat flex pada `.hero` + padding-block simetris, bukan
+   padding-top tetap seperti Tema 1: di 1440×740 ini menaruh tepi atas konten
+   di y≈183px, sama dengan posisi blok di Figma (`top-1/2` translateY(-50%)).
+   Di ≤900px `.hero` sudah `min-height: 0` (§13), jadi tingginya menyusut ke
+   konten dan centering-nya otomatis jadi no-op — kembali rata atas seperti
+   Tema 1, tanpa aturan tambahan. */
+[data-theme="tema-2"] .hero {
+  display: flex;
+  align-items: center;
+  padding-block: 63px;
+  /* 810px, BUKAN 740px seperti `.hero` dasar (Tema 1) — Figma node 16:4171
+     merevisi tinggi Hero jadi 810. Ini bukan perubahan kosmetik: di 740px
+     mockup HP tidak punya cukup ruang vertikal, sehingga tombol "Ikuti Kuis
+     Dengar Stori" di dalamnya selalu jatuh di zona `.hero__blend`, dan kalau
+     asetnya digeser ke atas supaya tombolnya lolos, puncak HP-nya yang
+     kepotong navbar. Di 810px keduanya lega sekaligus: puncak HP 50,3px dari
+     tepi atas Hero (= jarak bersih dari `.topbar` 50px, yang duduk DI ATAS
+     Hero, bukan overlay), dan dasar tombol 8-50px di atas kurva ellipse
+     blend-nya.
+     Rasio aset latarnya WAJIB ikut: 2880x1620 = 1440x810 (lihat
+     tools/build-hero-tema2.ps1) — kalau rasionya beda, `object-fit: cover`
+     akan meng-crop sisi dan tepi kanan mockup HP-nya ikut terpotong. */
+  min-height: 810px;
+  /* Figma 44:6649 root-nya `bg-[#1c1a16]` — datar, BUKAN gradient hangat
+     `--bg-hero` milik Tema 1. Ini bukan sekadar soal fidelity: warna ini
+     sempat terlihat sebagai "gap cokelat" di dua tempat, karena `--bg-hero`
+     ujung atasnya terang (#8E867E). Keduanya hilang dengan warna yang benar:
+       1. saat animasi masuk `heroSlideInRight` (§14) — foto bergeser 72px ke
+          kanan, jadi 72px di tepi kiri sempat tidak tertutup gambar;
+       2. sesaat setelah tombol "Tema 2" diklik — aset latarnya `loading="lazy"`
+          jadi ada jeda sebelum fotonya termuat.
+     #1C1A16 sendiri praktis sama dengan tepi kiri/atas aset komposit-nya
+     (terukur #1A1915), jadi dua momen di atas jadi tak terlihat. */
+  background: var(--bg);
+}
+
+/* §13 menyetel `.hero { min-height: 0 }` di ≤900px supaya tingginya menyusut ke
+   konten. Aturan tema-2 di atas spesifisitasnya 0,2,0 (attribute + class) vs
+   0,1,0 di §13, jadi tanpa override ini `min-height: 810px` akan tetap menang
+   di mobile dan menyisakan ruang kosong besar di bawah konten. */
+@media (max-width: 900px) {
+  [data-theme="tema-2"] .hero { min-height: 0; }
+}
+
+/* Figma 16:4171 — ellipse blend (node 16:4176/16:4177) y=693 di frame 810,
+   tinggi 409, jadi tepi bawahnya 693+409-810 = 292px di bawah Hero. Di frame
+   740 yang lama angkanya -318px (lihat `.hero__blend` §5).
+   Catatan: Figma menumpuk DUA ellipse identik di sini; kita tetap satu, karena
+   satu ellipse #1C1A16 opacity .98 sudah praktis opaque di intinya — bedanya
+   cuma di pinggiran blur-nya, tidak terlihat di atas latar segelap ini. */
+[data-theme="tema-2"] .hero__blend { bottom: -292px; }
+
+/* max-width disamakan dengan --content supaya tepi kiri konten jatuh tepat di
+   tepi kiri container global (185px @1440) — responsif, bukan offset 202px
+   hardcoded seperti di Figma. */
+[data-theme="tema-2"] .hero__content {
+  width: 100%;
+  max-width: var(--content);
+  align-items: flex-start;
+}
+[data-theme="tema-2"] .hero__body { align-items: flex-start; gap: 32px; }
+[data-theme="tema-2"] .hero__copy--tema-2 { max-width: 615px; text-align: left; }
+
+/* Figma 44:6662 — 2 fact rata kiri, ikonnya dalam badge bundar 36px di kiri
+   (lihat `.fact__badge` §5). padding-left 44px = badge 36 + jarak 8. */
+[data-theme="tema-2"] .hero__facts--tema-2 {
+  margin-top: 40px;
+  justify-content: flex-start;
+  /* align-items (bukan cuma justify-content) perlu di-override juga: di ≤640px
+     `.hero__facts` jadi `flex-direction: column` (§13), dan di mode kolom
+     `align-items: center` bawaannya yang mengatur perataan HORIZONTAL — tanpa
+     ini, kedua fact ikut ter-center dan tidak lurus dengan konten Tema 2 yang
+     rata kiri. Di desktop (mode baris) efeknya nihil karena kedua fact
+     tingginya sama. */
+  align-items: flex-start;
+}
+
+[data-theme="tema-2"] .hero__facts--tema-2 .fact {
+  position: relative;
+  align-items: flex-start;
+  padding-left: 44px;
+}
+[data-theme="tema-2"] .hero__facts--tema-2 .fact__label { font-size: 14px; }
+[data-theme="tema-2"] .hero__facts--tema-2 .fact__value { font-size: 16px; }
+
+/* Figma 44:6662 (node 70:2394) — separator antar-fact Tema 2 adalah garis
+   vertikal, BUKAN titik seperti Tema 1 (`.fact__sep` dasar di §5, dot 5px
+   `--neutral-base`). Override ini menang atas rule dasar (0,3,0 vs 0,1,0)
+   tanpa bergantung urutan file. Tetap `.fact__sep` yang sama (bukan class
+   baru) supaya HTML-nya tidak perlu diduplikasi per tema — sudah cukup satu
+   elemen yang tampilannya berubah lewat CSS, sama seperti bullet list di
+   banner Hadiah (§16, bagian Banner Hadiah). Ikut disembunyikan otomatis di
+   ≤640px lewat rule dasar `.fact__sep { display: none; }` (§13). */
+[data-theme="tema-2"] .hero__facts--tema-2 .fact__sep {
+  width: 1px;
+  height: 35px;
+  border-radius: 0;
+  background: rgba(255, 255, 255, .15);
+  /* `.hero__facts--tema-2` sendiri `align-items: flex-start` (supaya blok
+     ikon+label rata atas) — tanpa align-self ini garisnya ikut ke atas,
+     bukan center terhadap tinggi baris seperti Figma. */
+  align-self: center;
+}
+
+/* CATATAN soal foto latar Hero Tema 2: geseran mockup HP ke bawah (supaya tidak
+   terlihat kepotong navbar) SENGAJA tidak dikerjakan di CSS, melainkan dibakar
+   ke dalam hero-bg-tema2.jpg oleh tools/build-hero-tema2.ps1 — lengkap dengan
+   ramp halus di batas atasnya.
+
+   Pernah dicoba lewat `margin-top` pada <img>-nya dan itu keliru: menggeser box
+   <img> membuat strip atas `.hero__photo` tidak tertutup gambar, sehingga latar
+   `.hero` menyembul — tampak sebagai "gap cokelat". Dengan dibakar ke aset,
+   <img>-nya tetap full-bleed sehingga gap semacam itu secara struktural tidak
+   mungkin terjadi. Jangan tambahkan offset posisi di sini. */
+
+/* --- Banner Hadiah Tema 2 — Figma 57:2458 (1070×271) --------------------- */
+[data-theme="tema-2"] .prize__media--tema-1,
+[data-theme="tema-2"] .prize__copy--tema-1 { display: none; }
+[data-theme="tema-2"] .prize__media--tema-2 { display: block; }
+[data-theme="tema-2"] .prize__copy--tema-2 { display: flex; }
+
+/* Node ini gradiennya mulai dari #22201B, sedikit lebih gelap dari #25221D
+   yang dipakai `.prize` (§7) — nilai itu berasal dari node Tema 1 di file Figma
+   yang lain (356:1806). Selisihnya cuma ~3 level jadi praktis tak terlihat,
+   tapi diikuti supaya benar-benar sesuai node ini. */
+[data-theme="tema-2"] .prize {
+  background: linear-gradient(to bottom, #22201B 31.034%, #2D2519 290.72%);
+  /* Padding vertikal 35,5px, bukan 40px seperti `.prize` (§7): frame node ini
+     271px dengan blok teks 200px, jadi (271−200)/2 = 35,5. Nilai 40px berasal
+     dari node Tema 1 di file Figma yang lain. Hasil akhirnya 273px (bukan pas
+     271) karena tinggi teks nyata 202,4px — Figma membulatkan line-height-nya
+     ke 72+104; selisih 2,4px itu tidak bisa dihilangkan tanpa mengunci tinggi
+     secara manual, dan itu justru rapuh terhadap perubahan copy. */
+  padding-block: 35.5px;
+}
+
+/* Figma 57:2459 — ellipse glow-nya 30px lebih rendah dari titik tengah kartu
+   (di Tema 1 pas di tengah). */
+[data-theme="tema-2"] .prize__glow { top: calc(50% + 30px); }
+
+/* Tumpukan kartu notifikasi GoPay (Figma 57:2524, kartu 317×133 @ x50,y69).
+   Aset `hadiah-gopay.png` sudah dipadding transparan simetris (lihat
+   assets/img/README.md), jadi 1071×543 → dirender 1/3 = 357×181 dan kartunya
+   otomatis jatuh tepat 317×133 di tengah kotak. `align-items: center` pada
+   `.prize` (§7) yang mengurus perataan vertikalnya — tidak perlu offset ajaib.
+
+   margin-left -10px: kolom grid pertama mulai di x=40 (padding `.prize`),
+   sedangkan padding transparan aset menyisakan 20px sebelum kartunya. 40+20=60,
+   padahal Figma menaruh kartunya di x=50 — jadi digeser 10px ke kiri. Lebar
+   357px memang melebihi kolom 333px, tapi kelebihannya jatuh di area gap 40px
+   (tepi kanan aset 387 < 413 tempat teks mulai), jadi tidak menabrak apa pun. */
+[data-theme="tema-2"] .prize__media--tema-2 {
+  width: 357px;
+  height: 181px;
+  margin-left: -10px;
+}
+
+/* Figma 57:2465 — titik bullet mengecil jadi 8px dan rata ATAS (bukan tengah),
+   dengan pusat titik 9px dari puncak teks (`circle cy=9` di dalam frame 8×13),
+   yaitu margin-top 5px + radius 4px. Warnanya #D9D9D9, sama seperti Tema 1. */
+[data-theme="tema-2"] .prize__copy--tema-2 .prize__list li { align-items: flex-start; }
+[data-theme="tema-2"] .prize__copy--tema-2 .prize__list li::before {
+  width: 8px;
+  height: 8px;
+  margin-top: 5px;
+}
+
+/* --- Cara Main Tema 2 — fokus 1 metode (Podcast), tanpa switcher tab -----
+   Bukan dari satu node Figma spesifik — permintaan langsung untuk melepas tab
+   Instastory/Mediopods dan fokus ke 1 alur (podcast). Markup-nya di §8:
+   `.play__head--tema-2` (judul saja, tanpa `.switch`) dan `.play__body--tema-2`
+   (1 `ol.steps` + 1 `.showcase`, 3 langkah — bukan 4, dan tidak ada tab-switch
+   sama sekali, beda dari pola dua-panel Instastory/Mediopods Tema 1).
+
+   `.play__head--tema-2` dan `.play__body--tema-2` TIDAK perlu default-hide di
+   sini: keduanya class BARU (tidak menimpa rule `.play__head`/`.play__body`
+   dasar di §8), jadi bawaannya sudah `display` normal (block/tidak diatur) —
+   tapi karena tanpa CSS apa pun elemen block tetap terlihat, kita perlu
+   default-hide eksplisit supaya Tema 1 (default) tidak menampilkan keduanya. */
+.play__head--tema-2, .play__body--tema-2 { display: none; }
+
+/* Carousel mobile-nya beda ceritanya: `.steps-carousel` dasar (§8) SUDAH
+   `display: none` di desktop, dan `:not([hidden])` di §13 men-set `block` di
+   ≤640px — dua rule itu spesifisitasnya 0,1,0 dan 0,2,0. Supaya default-hide
+   Tema 2 ini menang di ≤640px (situasi Tema 1 aktif, carousel Podcast harus
+   tetap tersembunyi walau tidak punya atribut `hidden`), classnya diulang
+   (`.steps-carousel.steps-carousel--tema-2`) supaya spesifisitasnya SAMA
+   (0,2,0) dengan rule §13 itu — lalu menang karena ditulis lebih akhir di file
+   ini (§16 selalu setelah §13). Pola cascade yang sama seperti `.fact__sep`
+   Tema 2 di atas. */
+.steps-carousel.steps-carousel--tema-2 { display: none; }
+
+[data-theme="tema-2"] .play__head--tema-1,
+[data-theme="tema-2"] .play__body--tema-1,
+[data-theme="tema-2"] .steps-carousel--tema-1 { display: none; }
+[data-theme="tema-2"] .play__head--tema-2 { display: flex; }
+/* Spesifisitasnya (0,2,0) mengalahkan `.play__body { display: none }` di
+   media query ≤640px (§13, 0,1,0) — bukan cuma di desktop. Ini disengaja
+   (4 Agustus 2026): mintanya cuma 1 tampilan "cara main" di mobile, dan
+   `.steps`+`.showcase` di sini (grid 1 kolom di ≤1060px — lihat §13) sudah
+   cukup pas dipakai langsung di mobile, jadi TIDAK dipasang default-hide
+   khusus mobile untuk blok ini. `.steps-carousel--tema-2` (carousel duplikat
+   di bawahnya, di §9b) yang sebaliknya sekarang disembunyikan permanen. */
+[data-theme="tema-2"] .play__body--tema-2 { display: grid; }
+/* Sengaja TIDAK ada override "tampil lagi di ≤640px" untuk
+   `.steps-carousel--tema-2` — lihat catatan di atas. Default-hide-nya (baris
+   di atas, "Carousel mobile-nya beda ceritanya") jadi berlaku di semua lebar
+   layar tanpa pengecualian. Markup-nya dibiarkan ada (dormant), konsisten
+   dengan Tema 1. */
+
+/* Penyesuaian responsif khusus Tema 2 — sengaja ditaruh di AKHIR §16, setelah
+   semua rule desktop di atas. Spesifisitasnya sama (0,2,0), jadi yang
+   menentukan urutan file; kalau blok ini ditaruh di §13 Responsive (yang
+   posisinya lebih awal) rule desktop di atas justru akan menimpanya. */
+@media (max-width: 900px) {
+  /* Kembalikan ke padding mobile `.prize` (§13). Tanpa baris ini padding-block
+     35,5px di atas ikut terpakai di mobile, karena spesifisitasnya (0,2,0)
+     mengalahkan `.prize` (0,1,0) di media query §13. */
+  [data-theme="tema-2"] .prize { padding-block: 24px; }
+
+  /* `.prize__media` di §13 di-set `aspect-ratio: 333/222` untuk Tema 1 — rasio
+     itu akan menggepengkan aset Tema 2, jadi pakai rasionya sendiri. Dibatasi
+     357px (ukuran desainnya) supaya kartu notifikasinya tidak membesar
+     berlebihan di tablet dan tetap proporsional terhadap teks di sebelahnya. */
+  [data-theme="tema-2"] .prize__media--tema-2 {
+    width: 100%;
+    max-width: 357px;
+    height: auto;
+    aspect-ratio: 357 / 181;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Label + 4 kotak berdampingan (gap 24) lebih lebar dari viewport mobile —
+     label ditaruh di atas kotak-kotak, bukan disamakan (tidak ada varian
+     mobile di Figma-nya, jadi ini adaptasi seperti pola breakpoint lain di
+     proyek ini). Total lebar kotak+separator (~272px) masih muat di dalam
+     339px (viewport 375 − gutter 18×2), jadi barisnya sendiri tidak perlu
+     wrap lagi. */
+  [data-theme="tema-2"] .countdown { flex-direction: column; align-items: flex-start; gap: 12px; }
+}
+
+/* --------------------------------------------------------------------------
+   17. Kondisi Pemenang — "Ongoing" / "Winner" (§10 untuk markup & komponennya)
+
+   Beda dengan §16 "Tema": ini BUKAN soal tema tampilan, tapi soal WAKTU
+   kampanye — section Pengumuman Pemenang selalu ada di DOM (tidak pernah
+   `hidden` total lagi seperti sebelumnya), kondisinya yang berubah lewat
+   atribut `data-winners-state` pada `.slab--winners`:
+
+   - "ongoing" (default markup, tanpa override di bawah) = kampanye masih
+     berjalan, daftar pemenang belum ada — tampilkan skeleton placeholder +
+     countdown "Akan diumumkan dalam".
+   - "winner" = daftar pemenang sudah tersedia.
+
+   Default-nya ditentukan initWinnersState() di assets/js/main.js (mengikuti
+   CAMPAIGN.winnersAnnouncedAt / query string ?preview=..., sama seperti
+   gating lama) — tombol "Ongoing"/"Winner" di navbar (.state-switch, §3)
+   cuma override manual untuk sesi saat itu, TIDAK disimpan ke localStorage
+   (beda dari bekas theme-switch — ini murni alat preview, bukan preferensi
+   pengguna yang perlu diingat). */
+[data-winners-state="winner"] .winners--ongoing { display: none; }
+[data-winners-state="winner"] .winners--winner { display: flex; }
