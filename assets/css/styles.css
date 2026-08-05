@@ -1491,7 +1491,23 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
      blend-nya.
      Rasio aset latarnya WAJIB ikut: 2880x1620 = 1440x810 (lihat
      tools/build-hero-tema2.ps1) — kalau rasionya beda, `object-fit: cover`
-     akan meng-crop sisi dan tepi kanan mockup HP-nya ikut terpotong. */
+     akan meng-crop sisi dan tepi kanan mockup HP-nya ikut terpotong.
+
+     `aspect-ratio` di bawah (5 Agustus 2026): tanpa ini, di lebar >1440px
+     box-nya makin "gepeng" (lebar naik, tinggi tetap 810 karena min-height
+     adalah lantai, bukan pengganda) — rasio box menyimpang dari rasio
+     gambar 16:9-nya, dan karena `object-fit: cover` + `object-position:
+     center bottom`, PUNCAK gambar (bagian atas mockup HP/kolase) yang
+     kepotong makin banyak seiring lebar viewport membesar (terkonfirmasi
+     kepotong nyata di 1920px). Dengan `aspect-ratio: 1440/810`, tinggi Hero
+     ikut membesar proporsional begitu lebar viewport lewat 1440px — rasio
+     box selalu match rasio gambar di atas titik itu, jadi `cover` cuma
+     memotong SISI kiri/kanan (simetris, tidak masalah), tidak pernah lagi
+     memotong atas/bawah, di resolusi berapa pun. Di bawah 1440px,
+     `min-height: 810px` yang menang (lantainya lebih besar dari hasil
+     aspect-ratio di lebar segitu) — perilakunya sama seperti sebelumnya,
+     tidak berubah. */
+  aspect-ratio: 1440 / 810;
   min-height: 810px;
   /* Figma 44:6649 root-nya `bg-[#1c1a16]` — datar, BUKAN gradient hangat
      `--bg-hero` milik Tema 1. Ini bukan sekadar soal fidelity: warna ini
@@ -1509,9 +1525,14 @@ svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
 /* §13 menyetel `.hero { min-height: 0 }` di ≤900px supaya tingginya menyusut ke
    konten. Aturan tema-2 di atas spesifisitasnya 0,2,0 (attribute + class) vs
    0,1,0 di §13, jadi tanpa override ini `min-height: 810px` akan tetap menang
-   di mobile dan menyisakan ruang kosong besar di bawah konten. */
+   di mobile dan menyisakan ruang kosong besar di bawah konten.
+
+   `aspect-ratio: auto` juga di-reset di sini — di ≤900px Hero memang sengaja
+   content-driven (bukan ikut rasio 16:9 asetnya), supaya konten yang lebih
+   sempit di mobile tidak dipaksa masuk ke box pendek hasil `56,25vw` (yang di
+   375px cuma ~210px, jauh lebih kecil dari kebutuhan konten). */
 @media (max-width: 900px) {
-  [data-theme="tema-2"] .hero { min-height: 0; }
+  [data-theme="tema-2"] .hero { aspect-ratio: auto; min-height: 0; }
 }
 
 /* Figma 16:4171 — ellipse blend (node 16:4176/16:4177) y=693 di frame 810,
